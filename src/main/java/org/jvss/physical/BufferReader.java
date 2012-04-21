@@ -15,173 +15,197 @@
  */
 package org.jvss.physical;
 
+import org.jvss.hash.Crc32;
+import org.jvss.hash.Hash16;
+import org.jvss.hash.XorHash32To16;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Date;
+
 /**
  * Reads VSS data types from a byte buffer.
  */
 public class BufferReader
 {
 
-       private final String encoding;
-       private final byte[] data;
-       private int offset;
-       private final int limit;
+   private final String encoding;
 
-       public BufferReader(String encoding, byte[] data)
-       {
-          this(encoding, data, 0 , data.length);
-       }
+   private final byte[] data;
 
-       public BufferReader(String encoding, byte[] data, int offset, int limit)
-       {
-           this.encoding = encoding;
-           this.data = data;
-           this.offset = offset;
-           this.limit = limit;
-       }
+   private int offset;
 
-       public int getOffset()
-       {
-           return offset;
-       }
+   private final int limit;
 
-       public int getRemaining()
-       {
-        return limit - offset; 
-       }
+   public BufferReader(String encoding, byte[] data)
+   {
+      this(encoding, data, 0, data.length);
+   }
 
-       public short checksum16()
-       {
-           short sum = 0;
-           for (int i = offset; i < limit; ++i)
-           {
-               sum += data[i];
-           }
-           return sum;
-       }
+   public BufferReader(String encoding, byte[] data, int offset, int limit)
+   {
+      this.encoding = encoding;
+      this.data = data;
+      this.offset = offset;
+      this.limit = limit;
+   }
 
-       private static Hash16 crc16 = new XorHash32To16(new Crc32(Crc32.IEEE));
+   /**
+    * @param offset
+    *           the offset to set
+    */
+   public void setOffset(int offset)
+   {
+      this.offset = offset;
+   }
 
-       public short crc16()
-       {
-           return crc16.Compute(data, offset, limit);
-       }
+   public int getOffset()
+   {
+      return offset;
+   }
 
-       public short crc16(int bytes)
-       {
-           CheckRead(bytes);
-           return crc16.Compute(data, offset, offset + bytes);
-       }
+   public int getRemaining()
+   {
+      return limit - offset;
+   }
 
-       public void skip(int bytes)
-       {
-           CheckRead(bytes);
-           offset += bytes;
-       }
+   public short checksum16()
+   {
+      short sum = 0;
+      for (int i = offset; i < limit; ++i)
+      {
+         sum += data[i];
+      }
+      return sum;
+   }
 
-       public short readInt16()
-       {
-           CheckRead(2);
-           return (short)(data[offset++] | data[offset++] << 8);
-       }
+   private static Hash16 crc16 = new XorHash32To16(new Crc32(Crc32.IEEE));
 
-       public int readInt32()
-       {
-           CheckRead(4);
-           return data[offset++] | data[offset++] << 8 |
-               data[offset++] << 16 | data[offset++] << 24;
-       }
+   public short crc16()
+   {
+      return crc16.compute(data, offset, limit);
+   }
 
-       private static final DateTime EPOCH =
-           new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+   public short crc16(int bytes)
+   {
+      CheckRead(bytes);
+      return crc16.compute(data, offset, offset + bytes);
+   }
 
-       public DateTime readDateTime()
-       {
-           return EPOCH + TimeSpan.FromSeconds(readInt32());
-       }
+   public void skip(int bytes)
+   {
+      CheckRead(bytes);
+      offset += bytes;
+   }
 
-       public String readSignature(int length)
-       {
-           CheckRead(length);
-           StringBuilder buf = new StringBuilder(length);
-           for (int i = 0; i < length; ++i)
-           {
-               buf.append((char)data[offset++]);
-           }
-           return buf.toString();
-       }
+   public short readInt16()
+   {
+      CheckRead(2);
+      return (short)(data[offset++] | data[offset++] << 8);
+   }
 
-       public VssName readName()
-       {
-           CheckRead(2 + 34 + 4);
-           return new VssName(ReadInt16(), ReadString(34), ReadInt32());
-       }
+   public int readInt32()
+   {
+      CheckRead(4);
+      return data[offset++] | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
+   }
 
-       public String readString(int fieldSize)
-       {
-           CheckRead(fieldSize);
+   public Date readDateTime()
+   {
+      return new Date(readInt32());
+   }
 
-           int count = 0;
-           for (int i = 0; i < fieldSize; ++i)
-           {
-               if (data[offset + i] == 0)
-               {
-                  break;
-               }
-               ++count;
-           }
+   public String readSignature(int length)
+   {
+      CheckRead(length);
+      StringBuilder buf = new StringBuilder(length);
+      for (int i = 0; i < length; ++i)
+      {
+         buf.append((char)data[offset++]);
+      }
+      return buf.toString();
+   }
 
-           String str = encoding.GetString(data, offset, count);
+   public VssName readName()
+   {
+      CheckRead(2 + 34 + 4);
+      return new VssName(readInt16(), readString(34), readInt32());
+   }
 
-           offset += fieldSize;
+   public String readString(int fieldSize)
+   {
+      CheckRead(fieldSize);
 
-           return str;
-       }
+      int count = 0;
+      for (int i = 0; i < fieldSize; ++i)
+      {
+         if (data[offset + i] == 0)
+         {
+            break;
+         }
+         ++count;
+      }
+      String str;
+      try
+      {
+         str = new String(data, offset, count, encoding);
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         throw new RuntimeException(e.getLocalizedMessage(), e);
+      }
 
-       public String readByteString(int bytes)
-       {
-           CheckRead(bytes);
-           String result = formatBytes(bytes);
-           offset += bytes;
-           return result;
-       }
+      offset += fieldSize;
 
-       public BufferReader extract(int bytes)
-       {
-           CheckRead(bytes);
-           return new BufferReader(encoding, data, offset, offset += bytes);
-       }
+      return str;
+   }
 
-       public ArraySegment<byte> getBytes(int bytes)
-       {
-           CheckRead(bytes);
-           var result = new ArraySegment<byte>(data, offset, bytes);
-           offset += bytes;
-           return result;
-       }
+   public String readByteString(int bytes)
+   {
+      CheckRead(bytes);
+      String result = formatBytes(bytes);
+      offset += bytes;
+      return result;
+   }
 
-       public String formatBytes(int bytes)
-       {
-           int formatLimit = Math.min(limit, offset + bytes);
-           StringBuilder buf = new StringBuilder((formatLimit - offset) * 3);
-           for (int i = offset; i < formatLimit; ++i)
-           {
-               buf.AppendFormat("{0:X2} ", data[i]);
-           }
-           return buf.toString();
-       }
+   public BufferReader extract(int bytes)
+   {
+      CheckRead(bytes);
+      return new BufferReader(encoding, data, offset, offset += bytes);
+   }
 
-       public String formatRemaining()
-       {
-           return formatBytes(getRemaining());
-       }
+   public byte[] getBytes(int bytes)
+   {
+      CheckRead(bytes);
 
-       private void CheckRead(int bytes)
-       {
-           if (offset + bytes > limit)
-           {
-               throw new EndOfBufferException(String.format(
-                   "Attempted read of {0} bytes with only {1} bytes remaining in buffer",
-                   bytes, getRemaining()));
-           }
-       }
+      byte[] result = Arrays.copyOfRange(data, offset, bytes);
+      //var result = new ArraySegment<byte>(data, offset, bytes);
+      offset += bytes;
+      return result;
+   }
+
+   public String formatBytes(int bytes)
+   {
+      int formatLimit = Math.min(limit, offset + bytes);
+      StringBuilder buf = new StringBuilder((formatLimit - offset) * 3);
+      for (int i = offset; i < formatLimit; ++i)
+      {
+         buf.append(String.format("{0:X2} ", data[i]));
+      }
+      return buf.toString();
+   }
+
+   public String formatRemaining()
+   {
+      return formatBytes(getRemaining());
+   }
+
+   private void CheckRead(int bytes)
+   {
+      if (offset + bytes > limit)
+      {
+         throw new EndOfBufferException(String.format(
+            "Attempted read of {0} bytes with only {1} bytes remaining in buffer", bytes, getRemaining()));
+      }
+   }
 }

@@ -90,8 +90,7 @@ public class RecordHeader
    {
       if (signature != expected)
       {
-         throw new RecordNotFoundException(String.format(
-            "Unexpected record signature: expected={0}, actual={1}",
+         throw new RecordNotFoundException(String.format("Unexpected record signature: expected={0}, actual={1}",
             expected, signature));
       }
    }
@@ -100,8 +99,7 @@ public class RecordHeader
    {
       if (!isCrcValid)
       {
-         throw new RecordCrcException(this, String.format(
-            "CRC error in {0} record: expected={1}, actual={2}",
+         throw new RecordCrcException(this, String.format("CRC error in {0} record: expected={1}, actual={2}",
             signature, fileCrc, actualCrc));
       }
    }
@@ -117,8 +115,7 @@ public class RecordHeader
 
    public void dump(Writer writer) throws IOException
    {
-      writer.write(String.format(
-         "Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})",
+      writer.write(String.format("Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})",
          signature, length, offset, fileCrc, actualCrc, isCrcValid ? "valid" : "INVALID"));
       writer.write('\n');
    }
