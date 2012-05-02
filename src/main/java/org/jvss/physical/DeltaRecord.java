@@ -42,6 +42,14 @@ public class DeltaRecord extends VssRecord
    }
 
    /**
+    * @return the operations
+    */
+   public List<DeltaOperation> getOperations()
+   {
+      return operations;
+   }
+
+   /**
     * 
     * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
     *      org.jvss.physical.RecordHeader)

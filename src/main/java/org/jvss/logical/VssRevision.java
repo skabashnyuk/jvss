@@ -39,6 +39,8 @@ import org.jvss.physical.RevisionRecord.MoveRevisionRecord;
 import org.jvss.physical.RevisionRecord.RenameRevisionRecord;
 import org.jvss.physical.RevisionRecord.ShareRevisionRecord;
 
+import java.util.Date;
+
 /**
  * Base class for revisions to a VSS item.
  * 
@@ -69,6 +71,11 @@ public class VssRevision
       return action;
    }
 
+   public int getVersion()
+   {
+      return revision.getRevision();
+   }
+
    /**
     * @return the revision
     */
@@ -77,12 +84,24 @@ public class VssRevision
       return revision;
    }
 
-   /**
-    * @return the comment
-    */
-   public CommentRecord getComment()
+   public Date getDate()
    {
-      return comment;
+      return revision.getDateTime();
+   }
+
+   public String getUser()
+   {
+      return revision.getUser();
+   }
+
+   public String getLabel()
+   {
+      return revision.getLabel();
+   }
+
+   public String getComment()
+   {
+      return comment != null ? comment.getComment() : null;
    }
 
    /**
@@ -110,65 +129,69 @@ public class VssRevision
          case DestroyProject :
          case DestroyFile : {
             DestroyRevisionRecord destroy = (DestroyRevisionRecord)revision;
-            return new VssDestroyAction(db.getItemName(destroy.getName(), destroy.getPhysical()));
+            return new VssDestroyAction(db.GetItemName(destroy.getName(), destroy.getPhysical()));
          }
-         case Hpdi.VssPhysicalLib.Action.RenameProject :
-         case Hpdi.VssPhysicalLib.Action.RenameFile : {
-            var rename = (RenameRevisionRecord)revision;
-            return new VssRenameAction(db.GetItemName(rename.Name, rename.Physical), db.GetFullName(rename.OldName));
+         case RenameProject :
+         case RenameFile : {
+            RenameRevisionRecord rename = (RenameRevisionRecord)revision;
+            return new VssRenameAction(db.GetItemName(rename.getName(), rename.getPhysical()), db.GetFullName(rename
+               .getOldName()));
          }
-         case Hpdi.VssPhysicalLib.Action.MoveFrom : {
-            var moveFrom = (MoveRevisionRecord)revision;
-            return new VssMoveFromAction(db.GetItemName(moveFrom.Name, moveFrom.Physical), moveFrom.ProjectPath);
+         case MoveFrom : {
+            MoveRevisionRecord moveFrom = (MoveRevisionRecord)revision;
+            return new VssMoveFromAction(db.GetItemName(moveFrom.getName(), moveFrom.getPhysical()),
+               moveFrom.getProjectPath());
          }
-         case Hpdi.VssPhysicalLib.Action.MoveTo : {
-            var moveTo = (MoveRevisionRecord)revision;
-            return new VssMoveToAction(db.GetItemName(moveTo.Name, moveTo.Physical), moveTo.ProjectPath);
+         case MoveTo : {
+            MoveRevisionRecord moveTo = (MoveRevisionRecord)revision;
+            return new VssMoveToAction(db.GetItemName(moveTo.getName(), moveTo.getPhysical()), moveTo.getProjectPath());
          }
-         case Hpdi.VssPhysicalLib.Action.ShareFile : {
-            var share = (ShareRevisionRecord)revision;
-            return new VssShareAction(db.GetItemName(share.Name, share.Physical), share.ProjectPath);
+         case ShareFile : {
+            ShareRevisionRecord share = (ShareRevisionRecord)revision;
+            return new VssShareAction(db.GetItemName(share.getName(), share.getPhysical()), share.getProjectPath());
          }
-         case Hpdi.VssPhysicalLib.Action.BranchFile :
-         case Hpdi.VssPhysicalLib.Action.CreateBranch : {
-            var branch = (BranchRevisionRecord)revision;
-            var name = db.GetFullName(branch.Name);
-            return new VssBranchAction(new VssItemName(name, branch.Physical, branch.Name.IsProject), new VssItemName(
-               name, branch.BranchFile, branch.Name.IsProject));
+         case BranchFile :
+         case CreateBranch : {
+            BranchRevisionRecord branch = (BranchRevisionRecord)revision;
+            String name = db.GetFullName(branch.getName());
+            return new VssBranchAction(new VssItemName(name, branch.getPhysical(), branch.getName().isProject()),
+               new VssItemName(name, branch.getBranchFile(), branch.getName().isProject()));
          }
-         case Hpdi.VssPhysicalLib.Action.EditFile : {
-            return new VssEditAction(item.PhysicalName);
+         case EditFile : {
+            return new VssEditAction(item.getPhysicalName());
          }
-         case Hpdi.VssPhysicalLib.Action.CreateProject :
-         case Hpdi.VssPhysicalLib.Action.CreateFile : {
-            var create = (CommonRevisionRecord)revision;
-            return new VssCreateAction(db.GetItemName(create.Name, create.Physical));
+         case CreateProject :
+         case CreateFile : {
+            CommonRevisionRecord create = (CommonRevisionRecord)revision;
+            return new VssCreateAction(db.GetItemName(create.getName(), create.getPhysical()));
          }
-         case Hpdi.VssPhysicalLib.Action.AddProject :
-         case Hpdi.VssPhysicalLib.Action.AddFile : {
-            var add = (CommonRevisionRecord)revision;
-            return new VssAddAction(db.GetItemName(add.Name, add.Physical));
+         case AddProject :
+         case AddFile : {
+            CommonRevisionRecord add = (CommonRevisionRecord)revision;
+            return new VssAddAction(db.GetItemName(add.getName(), add.getPhysical()));
          }
-         case Hpdi.VssPhysicalLib.Action.DeleteProject :
-         case Hpdi.VssPhysicalLib.Action.DeleteFile : {
-            var delete = (CommonRevisionRecord)revision;
-            return new VssDeleteAction(db.GetItemName(delete.Name, delete.Physical));
+         case DeleteProject :
+         case DeleteFile : {
+            CommonRevisionRecord delete = (CommonRevisionRecord)revision;
+            return new VssDeleteAction(db.GetItemName(delete.getName(), delete.getPhysical()));
          }
-         case Hpdi.VssPhysicalLib.Action.RecoverProject :
-         case Hpdi.VssPhysicalLib.Action.RecoverFile : {
-            var recover = (CommonRevisionRecord)revision;
-            return new VssRecoverAction(db.GetItemName(recover.Name, recover.Physical));
+         case RecoverProject :
+         case RecoverFile : {
+            CommonRevisionRecord recover = (CommonRevisionRecord)revision;
+            return new VssRecoverAction(db.GetItemName(recover.getName(), recover.getPhysical()));
          }
-         case Hpdi.VssPhysicalLib.Action.ArchiveProject : {
-            var archive = (ArchiveRevisionRecord)revision;
-            return new VssArchiveAction(db.GetItemName(archive.Name, archive.Physical), archive.ArchivePath);
+         case ArchiveProject : {
+            ArchiveRevisionRecord archive = (ArchiveRevisionRecord)revision;
+            return new VssArchiveAction(db.GetItemName(archive.getName(), archive.getPhysical()),
+               archive.getArchivePath());
          }
-         case Hpdi.VssPhysicalLib.Action.RestoreProject : {
-            var archive = (ArchiveRevisionRecord)revision;
-            return new VssRestoreAction(db.GetItemName(archive.Name, archive.Physical), archive.ArchivePath);
+         case RestoreProject : {
+            ArchiveRevisionRecord archive = (ArchiveRevisionRecord)revision;
+            return new VssRestoreAction(db.GetItemName(archive.getName(), archive.getPhysical()),
+               archive.getArchivePath());
          }
          default :
-            throw new ArgumentException("Unknown revision action: " + revision.Action);
+            throw new IllegalArgumentException("Unknown revision action: " + revision.getAction());
       }
    }
 }

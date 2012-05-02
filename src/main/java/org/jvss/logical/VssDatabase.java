@@ -1,20 +1,17 @@
 /*
- * Copyright (C) 2012 eXo Platform SAS.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * Copyright 2009 HPDI, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jvss.logical;
 
@@ -81,7 +78,7 @@ public class VssDatabase
    /**
     * @return the nameFile
     */
-   public String getNameFile()
+   public NameFile getNameFile()
    {
       return nameFile;
    }
@@ -113,14 +110,14 @@ public class VssDatabase
       {
          String name = segments[index++];
 
-         VssProject subproject = project.FindProject(name);
+         VssProject subproject = project.findProject(name);
          if (subproject != null)
          {
             project = subproject;
             continue;
          }
 
-         VssFile file = project.FindFile(name);
+         VssFile file = project.findFile(name);
          if (file != null)
          {
             if (index == segments.length)
@@ -176,7 +173,7 @@ public class VssDatabase
       return new File(physicalPath).exists();
    }
 
-   private VssDatabase(String path, String encoding) throws IOException
+   public VssDatabase(String path, String encoding) throws IOException
    {
       this.basePath = path;
       this.encoding = encoding;
@@ -193,7 +190,7 @@ public class VssDatabase
       rootProject = OpenProject(null, RootProjectFile, RootProjectName);
    }
 
-   private VssProject OpenProject(VssProject parent, String physicalName, String logicalName)
+   public VssProject OpenProject(VssProject parent, String physicalName, String logicalName)
    {
       VssItemName itemName = new VssItemName(logicalName, physicalName, true);
       String logicalPath = BuildPath(parent, logicalName);
@@ -201,25 +198,25 @@ public class VssDatabase
       return new VssProject(this, itemName, physicalPath, logicalPath);
    }
 
-   private VssFile OpenFile(String physicalName, String logicalName)
+   public VssFile OpenFile(String physicalName, String logicalName)
    {
       VssItemName itemName = new VssItemName(logicalName, physicalName, false);
       String physicalPath = GetDataPath(physicalName);
       return new VssFile(this, itemName, physicalPath);
    }
 
-   private static String BuildPath(VssProject parent, String logicalName)
+   public static String BuildPath(VssProject parent, String logicalName)
    {
       return parent != null ? parent.getPath() + ProjectSeparator + logicalName : logicalName;
    }
 
-   private String GetDataPath(String physicalName)
+   public String GetDataPath(String physicalName)
    {
       return new File(new File(dataPath, physicalName.substring(0, 1)).getAbsolutePath(), physicalName)
          .getAbsolutePath();
    }
 
-   private String GetFullName(VssName name)
+   public String GetFullName(VssName name)
    {
       if (name.nameFileOffset() != 0)
       {
@@ -233,7 +230,7 @@ public class VssDatabase
       return name.shortName();
    }
 
-   private VssItemName GetItemName(VssName name, String physicalName)
+   public VssItemName GetItemName(VssName name, String physicalName)
    {
       return new VssItemName(GetFullName(name), physicalName, name.isProject());
    }

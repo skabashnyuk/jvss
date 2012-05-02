@@ -1,24 +1,26 @@
 /*
- * Copyright (C) 2012 eXo Platform SAS.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * Copyright 2009 HPDI, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jvss.logical;
 
+import org.jvss.physical.CommentRecord;
 import org.jvss.physical.FileHeaderRecord;
+import org.jvss.physical.FileHeaderRecord.FileFlags;
+import org.jvss.physical.RevisionRecord;
+
+import java.util.Date;
 
 /**
  * Represents a VSS file.
@@ -27,77 +29,82 @@ public class VssFile extends VssItem
 {
    public boolean isLocked()
    {
-       return (Header.Flags & FileFlags.Locked) != 0; 
+      return (header().getFlags().getValue() & FileFlags.Locked.getValue()) != 0;
    }
 
-   public bool IsBinary
+   public boolean isBinary()
    {
-       get { return (Header.Flags & FileFlags.Binary) != 0; }
+      return (header().getFlags().getValue() & FileFlags.Binary.getValue()) != 0;
    }
 
-   public bool IsLatestOnly
+   public boolean isLatestOnly()
    {
-       get { return (Header.Flags & FileFlags.LatestOnly) != 0; }
+      return (header().getFlags().getValue() & FileFlags.LatestOnly.getValue()) != 0;
    }
 
-   public bool IsShared
+   public boolean isShared()
    {
-       get { return (Header.Flags & FileFlags.Shared) != 0; }
+      return (header().getFlags().getValue() & FileFlags.Shared.getValue()) != 0;
    }
 
-   public bool IsCheckedOut
+   public boolean isCheckedOut()
    {
-       get { return (Header.Flags & FileFlags.CheckedOut) != 0; }
+      return (header().getFlags().getValue() & FileFlags.CheckedOut.getValue()) != 0;
    }
 
-   public uint Crc
+   public int getCrc()
    {
-       get { return Header.DataCrc; }
+      return header().getDataCrc();
    }
 
-   public DateTime LastRevised
+   public Date getLastRevised()
    {
-       get { return Header.LastRevDateTime; }
+      return header().getLastRevDateTime();
    }
 
-   public DateTime LastModified
+   public Date getLastModified()
    {
-       get { return Header.ModificationDateTime; }
+      return header().getModificationDateTime();
    }
 
-   public DateTime Created
+   public Date getCreated()
    {
-       get { return Header.CreationDateTime; }
+      return header().getCreationDateTime();
    }
 
-   public new IEnumerable<VssFileRevision> Revisions
+   public Iterable<VssRevision> getRevisions()
    {
-       get { return new VssRevisions<VssFile, VssFileRevision>(this); }
+      return new VssRevisions(this);
    }
 
-   public new VssFileRevision GetRevision(int version)
+   public VssFileRevision getRevision(int version)
    {
-       return (VssFileRevision)base.GetRevision(version);
+      return (VssFileRevision)super.GetRevision(version);
    }
 
    private FileHeaderRecord header()
    {
-      return getItemFile().get
-//        return (FileHeaderRecord)  getItemFile().get; 
+      return (FileHeaderRecord)getItemFile().getHeader();
    }
 
-   internal VssFile(VssDatabase database, VssItemName itemName, string physicalPath)
-       : base(database, itemName, physicalPath)
+   protected VssFile(VssDatabase database, VssItemName itemName, String physicalPath)
+
    {
+      super(database, itemName, physicalPath);
    }
 
-   public string GetPath(VssProject project)
+   public String GetPath(VssProject project)
    {
-       return project.Path + VssDatabase.ProjectSeparator + Name;
+      return project.getPath() + VssDatabase.ProjectSeparator + getName();
    }
 
-   protected override VssRevision CreateRevision(RevisionRecord revision, CommentRecord comment)
+   /**
+    * @see org.jvss.logical.VssItem#createRevision(org.jvss.physical.RevisionRecord,
+    *      org.jvss.physical.CommentRecord)
+    */
+   @Override
+   protected VssRevision createRevision(RevisionRecord revision, CommentRecord comment)
    {
-       return new VssFileRevision(this, revision, comment);
+      return new VssFileRevision(this, revision, comment);
    }
 }

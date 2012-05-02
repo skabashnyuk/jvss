@@ -1,22 +1,27 @@
 /*
- * Copyright (C) 2012 eXo Platform SAS.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * Copyright 2009 HPDI, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jvss.logical;
+
+import org.jvss.physical.CommentRecord;
+import org.jvss.physical.ItemHeaderRecord.ItemType;
+import org.jvss.physical.ProjectEntryFile;
+import org.jvss.physical.ProjectEntryRecord;
+import org.jvss.physical.RevisionRecord;
+
+import java.util.Iterator;
 
 /**
  * Represents a VSS project.
@@ -24,8 +29,6 @@ package org.jvss.logical;
 public class VssProject extends VssItem
 {
    private final String logicalPath;
-
-   
 
    /**
     * @return the logicalPath
@@ -39,194 +42,227 @@ public class VssProject extends VssItem
    {
       return logicalPath;
    }
-   
-   public IEnumerable<VssProject> Projects
+
+   public Iterable<VssProject> getProjects()
    {
-       get { return new VssProjects(this); }
+      return new VssProjects(this);
    }
 
-   public IEnumerable<VssFile> Files
+   public Iterable<VssFile> getFiles()
    {
-       get { return new VssFiles(this); }
+      return new VssFiles(this);
    }
 
-   public new IEnumerable<VssProjectRevision> Revisions
+   public Iterable<VssRevision> getRevisions()
    {
-       get { return new VssRevisions<VssProject, VssProjectRevision>(this); }
+      return new VssRevisions(this);
    }
 
-   public new VssProjectRevision GetRevision(int version)
+   public VssProjectRevision getRevision(int version)
    {
-       return (VssProjectRevision)base.GetRevision(version);
+      return (VssProjectRevision)super.GetRevision(version);
    }
 
-   public VssProject FindProject(string name)
+   public VssProject findProject(String name)
    {
-       foreach (VssProject subproject in Projects)
-       {
-           if (name == subproject.Name)
-           {
-               return subproject;
-           }
-       }
-       return null;
+      for (VssProject subproject : getProjects())
+      {
+         if (name == subproject.getName())
+         {
+            return subproject;
+         }
+      }
+      return null;
    }
 
-   public VssFile FindFile(string name)
+   public VssFile findFile(String name)
    {
-       foreach (VssFile file in Files)
-       {
-           if (name == file.Name)
-           {
-               return file;
-           }
-       }
-       return null;
+      for (VssFile file : getFiles())
+      {
+         if (name == file.getName())
+         {
+            return file;
+         }
+      }
+      return null;
    }
 
-   public VssItem FindItem(string name)
+   public VssItem findItem(String name)
    {
-       var project = FindProject(name);
-       if (project != null)
-       {
-           return project;
-       }
-       return FindFile(name);
+      VssProject project = findProject(name);
+      if (project != null)
+      {
+         return project;
+      }
+      return findFile(name);
    }
 
-   internal VssProject(VssDatabase database, VssItemName itemName,
-       string physicalPath, string logicalPath)
-       : base(database, itemName, physicalPath)
+   protected VssProject(VssDatabase database, VssItemName itemName, String physicalPath, String logicalPath)
    {
-       this.logicalPath = logicalPath;
+      super(database, itemName, physicalPath);
+      this.logicalPath = logicalPath;
    }
 
-   protected override VssRevision CreateRevision(RevisionRecord revision, CommentRecord comment)
+   /**
+    * 
+    * @see org.jvss.logical.VssItem#createRevision(org.jvss.physical.RevisionRecord,
+    *      org.jvss.physical.CommentRecord)
+    */
+   @Override
+   protected VssRevision createRevision(RevisionRecord revision, CommentRecord comment)
    {
-       return new VssProjectRevision(this, revision, comment);
+      return new VssProjectRevision(this, revision, comment);
    }
 
-   private class VssProjects : IEnumerable<VssProject>
+   private class VssProjects implements Iterable<VssProject>
    {
-       private readonly VssProject project;
+      private final VssProject project;
 
-       internal VssProjects(VssProject project)
-       {
-           this.project = project;
-       }
+      /**
+       * @param project
+       */
+      public VssProjects(VssProject project)
+      {
+         super();
+         this.project = project;
+      }
 
-       public IEnumerator<VssProject> GetEnumerator()
-       {
-           return new VssItemEnumerator<VssProject>(project, ItemTypes.Project, project.DataPath);
-       }
-
-       IEnumerator IEnumerable.GetEnumerator()
-       {
-           return this.GetEnumerator();
-       }
+      /**
+       * @see java.lang.Iterable#iterator()
+       */
+      @Override
+      public Iterator<VssProject> iterator()
+      {
+         return new VssItemEnumerator<VssProject>(project, ItemTypes.Project, project.getDataPath());
+      }
    }
 
-   private class VssFiles : IEnumerable<VssFile>
+   private class VssFiles implements Iterable<VssFile>
    {
-       private readonly VssProject project;
+      private final VssProject project;
 
-       internal VssFiles(VssProject project)
-       {
-           this.project = project;
-       }
+      /**
+       * @param project
+       */
+      public VssFiles(VssProject project)
+      {
+         super();
+         this.project = project;
+      }
 
-       public IEnumerator<VssFile> GetEnumerator()
-       {
-           return new VssItemEnumerator<VssFile>(project, ItemTypes.File, project.DataPath);
-       }
-
-       IEnumerator IEnumerable.GetEnumerator()
-       {
-           return this.GetEnumerator();
-       }
+      /**
+       * @see java.lang.Iterable#iterator()
+       */
+      @Override
+      public Iterator<VssFile> iterator()
+      {
+         return new VssItemEnumerator<VssFile>(project, ItemTypes.File, project.getDataPath());
+      }
    }
 
-   private enum ItemTypes
-   {
-//       None = 0,
-//       Project = ItemType.Project,
-//       File = ItemType.File,
-//       Any = Project | File
-      None ,
-               Project,
-               File ,
-               Any ;
+   private enum ItemTypes {
+      //       None = 0,
+      //       Project = ItemType.Project,
+      //       File = ItemType.File,
+      //       Any = Project | File
+      None(0), Project(ItemType.PROJECT.getValue()), File(ItemType.FILE.getValue()), Any(ItemType.PROJECT.getValue()
+         | ItemType.FILE.getValue());
+
+      private final int value;
+
+      private ItemTypes(int value)
+      {
+         this.value = value;
+      }
+
+      /**
+       * @return the value
+       */
+      public int getValue()
+      {
+         return value;
+      }
+
    }
 
-   private class VssItemEnumerator<T> : IEnumerator<T>
-       where T : VssItem
+   private static class VssItemEnumerator<T extends VssItem> implements Iterator<T>
    {
-       private readonly VssProject project;
-       private readonly ItemTypes itemTypes;
-       private readonly ProjectEntryFile entryFile;
-       private ProjectEntryRecord entryRecord;
-       private VssItem entryItem;
-       private bool beforeFirst = true;
 
-       internal VssItemEnumerator(VssProject project, ItemTypes itemTypes, string entryFilePath)
-       {
-           this.project = project;
-           this.itemTypes = itemTypes;
-           entryFile = new ProjectEntryFile(entryFilePath, project.Database.Encoding);
-       }
+      private final VssProject project;
 
-       public void Dispose()
-       {
-       }
+      private final ItemTypes itemTypes;
 
-       public void Reset()
-       {
-           beforeFirst = true;
-       }
+      private final ProjectEntryFile entryFile;
 
-       public bool MoveNext()
-       {
-           entryItem = null;
-           do
-           {
-               entryRecord = beforeFirst ? entryFile.GetFirstEntry() : entryFile.GetNextEntry();
-               beforeFirst = false;
-           }
-           while (entryRecord != null && ((int)itemTypes & (int)entryRecord.ItemType) == 0);
-           return entryRecord != null;
-       }
+      private ProjectEntryRecord entryRecord;
 
-       public T Current
-       {
-           get
-           {
-               if (entryRecord == null)
-               {
-                   throw new InvalidOperationException();
-               }
+      private T entryItem;
 
-               if (entryItem == null)
-               {
-                   var physicalName = entryRecord.Physical.ToUpper();
-                   var logicalName = project.database.GetFullName(entryRecord.Name);
-                   if (entryRecord.ItemType == ItemType.Project)
-                   {
-                       entryItem = project.database.OpenProject(project, physicalName, logicalName);
-                   }
-                   else
-                   {
-                       entryItem = project.database.OpenFile(physicalName, logicalName);
-                   }
-               }
+      private boolean beforeFirst = true;
 
-               return (T)entryItem;
-           }
-       }
+      private VssItemEnumerator(VssProject project, ItemTypes itemTypes, String entryFilePath)
+      {
+         this.project = project;
+         this.itemTypes = itemTypes;
+         this.entryFile = new ProjectEntryFile(entryFilePath, project.getDatabase().getEncoding());
+      }
 
-       object IEnumerator.Current
-       {
-           get { return this.Current; }
-       }
+      /**
+       * @see java.util.Iterator#hasNext()
+       */
+      @Override
+      public boolean hasNext()
+      {
+         entryItem = null;
+         do
+         {
+            entryRecord = beforeFirst ? entryFile.getFirstEntry() : entryFile.GetNextEntry();
+            beforeFirst = false;
+         }
+         while (entryRecord != null && (itemTypes.getValue() & entryRecord.getItemType().getValue()) == 0);
+         return entryRecord != null;
+      }
+
+      /**
+       * @see java.util.Iterator#next()
+       */
+      @Override
+      public T next()
+      {
+         if (entryRecord == null)
+         {
+            throw new IllegalStateException();
+         }
+
+         if (entryItem == null)
+         {
+            String physicalName = entryRecord.getPhysical().toUpperCase();
+            String logicalName = project.database.GetFullName(entryRecord.getName());
+            if (entryRecord.getItemType() == ItemType.PROJECT)
+            {
+               entryItem = (T)project.database.OpenProject(project, physicalName, logicalName);
+            }
+            else
+            {
+               entryItem = (T)project.database.OpenFile(physicalName, logicalName);
+            }
+         }
+
+         return entryItem;
+      }
+
+      public void Reset()
+      {
+         beforeFirst = true;
+      }
+
+      /**
+       * @see java.util.Iterator#remove()
+       */
+      @Override
+      public void remove()
+      {
+      }
+
    }
-}
 }
