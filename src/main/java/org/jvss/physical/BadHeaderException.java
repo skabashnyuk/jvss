@@ -18,7 +18,40 @@ package org.jvss.physical;
 /**
  * Exception thrown when an invalid record header is read.
  */
-public class BadHeaderException extends Exception
+public class BadHeaderException extends RuntimeException
 {
+
+   /**
+    * 
+    */
+   public BadHeaderException()
+   {
+      super();
+   }
+
+   /**
+    * @param message
+    * @param cause
+    */
+   public BadHeaderException(String message, Throwable cause)
+   {
+      super(message, cause);
+   }
+
+   /**
+    * @param message
+    */
+   public BadHeaderException(String message)
+   {
+      super(message);
+   }
+
+   /**
+    * @param cause
+    */
+   public BadHeaderException(Throwable cause)
+   {
+      super(cause);
+   }
 
 }
