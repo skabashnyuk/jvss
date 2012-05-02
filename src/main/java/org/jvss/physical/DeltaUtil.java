@@ -15,13 +15,11 @@
  */
 package org.jvss.physical;
 
-import org.jvss.physical.DeltaOperation.DeltaCommand;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,34 +29,35 @@ import java.util.List;
 public class DeltaUtil
 {
    public static List<DeltaOperation> merge(List<DeltaOperation> lastRevision, List<DeltaOperation> priorRevision)
-  {
+   {
       List<DeltaOperation> result = new LinkedList<DeltaOperation>();
-      DeltaSimulator  merger  = new DeltaSimulator(lastRevision);
-          for (DeltaOperation operation : priorRevision)
-          {
-              switch (operation.getCommand())
-              {
-                  case DeltaCommand.WriteLog:
-                      result.add(operation);
-                      break;
-                  case DeltaCommand.WriteSuccessor:
-                      merger.Seek(operation.getOffset());
-                      merger.Read(operation.getLength(),
-                          delegate(byte[] data, int offset, int count)
-                          {
-                              result.AddLast(DeltaOperation.WriteLog(data, offset, count));
-                              return count;
-                          },
-                          delegate(int offset, int count)
-                          {
-                              result.AddLast(DeltaOperation.WriteSuccessor(offset, count));
-                              return count;
-                          });
-                      break;
-              }
-          }
+      DeltaSimulator merger = new DeltaSimulator(lastRevision);
+      for (DeltaOperation operation : priorRevision)
+      {
+         switch (operation.getCommand())
+         {
+            case WriteLog :
+               result.add(operation);
+               break;
+            case WriteSuccessor :
+               merger.seek(operation.getOffset());
+               throw new NotImplementedException();
+               //                      merger.read(operation.getLength(),
+               //                          delegate(byte[] data, int offset, int count)
+               //                          {
+               //                              result.AddLast(DeltaOperation.WriteLog(data, offset, count));
+               //                              return count;
+               //                          },
+               //                          delegate(int offset, int count)
+               //                          {
+               //                              result.AddLast(DeltaOperation.WriteSuccessor(offset, count));
+               //                              return count;
+               //                          });
+               // break;
+         }
+      }
       return result;
-  }
+   }
 
    public static void apply(List<DeltaOperation> operations, InputStream input, OutputStream output) throws IOException
    {
