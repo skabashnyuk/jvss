@@ -27,7 +27,7 @@ public class VssDatabase
 
    public static final String RootProjectFile = "AAAAAAAA";
 
-   public static final char ProjectSeparatorChar = '/';
+   public static final String ProjectSeparatorChar = "/";
 
    public static final String ProjectSeparator = "/";
 
@@ -91,10 +91,11 @@ public class VssDatabase
       return encoding;
    }
    
-   public VssItem GetItem(string logicalPath)
+   public VssItem GetItem(String logicalPath)
    {
-       var segments = logicalPath.Split(new char[] { ProjectSeparatorChar },
-           StringSplitOptions.RemoveEmptyEntries);
+//       var segments = logicalPath.Split(new char[] { ProjectSeparatorChar },
+//           StringSplitOptions.RemoveEmptyEntries);
+      String[] = logicalPath.split(ProjectSeparatorChar);
        var index = segments[0] == RootProjectName ? 1 : 0;
        VssProject project = rootProject;
        while (index < segments.Length)
@@ -163,7 +164,7 @@ public class VssDatabase
        return File.Exists(physicalPath);
    }
 
-   internal VssDatabase(string path, Encoding encoding)
+   private VssDatabase(String path, String encoding)
    {
        this.basePath = path;
        this.encoding = encoding;

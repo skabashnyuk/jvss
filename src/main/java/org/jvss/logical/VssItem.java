@@ -18,6 +18,9 @@
  */
 package org.jvss.logical;
 
+import org.jvss.physical.ItemFile;
+import org.jvss.physical.RevisionRecord;
+
 import java.io.File;
 
 /**
@@ -31,7 +34,7 @@ public class VssItem
 
    protected final String physicalPath;
 
-   private File itemFile;
+   private ItemFile itemFile;
    
    
    public VssDatabase getDatabase()
@@ -114,23 +117,22 @@ public class VssItem
        return CreateRevision(revisionRecord);
    }
 
-   internal ItemFile ItemFile
+   protected ItemFile getItemFile()
    {
-       get
-       {
-           if (itemFile == null)
-           {
-               itemFile = new ItemFile(physicalPath, database.Encoding);
-           }
-           return itemFile;
-       }
-       set
-       {
-           itemFile = value;
-       }
+      if (itemFile == null)
+      {
+          itemFile = new ItemFile(physicalPath, database.getEncoding());
+      }
+      return itemFile;
    }
+   protected void setItemFile(ItemFile value)
+   {
+      itemFile = value;
+   }
+   
+   
 
-   internal VssItem(VssDatabase database, VssItemName itemName, string physicalPath)
+   private VssItem(VssDatabase database, VssItemName itemName, String physicalPath)
    {
        this.database = database;
        this.itemName = itemName;

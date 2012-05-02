@@ -130,6 +130,176 @@ public class RevisionRecord extends VssRecord
    protected int labelCommentLength;
 
    /**
+    * @return the prevRevOffset
+    */
+   public int getPrevRevOffset()
+   {
+      return prevRevOffset;
+   }
+
+   /**
+    * @param prevRevOffset
+    *           the prevRevOffset to set
+    */
+   public void setPrevRevOffset(int prevRevOffset)
+   {
+      this.prevRevOffset = prevRevOffset;
+   }
+
+   /**
+    * @return the action
+    */
+   public Action getAction()
+   {
+      return action;
+   }
+
+   /**
+    * @param action
+    *           the action to set
+    */
+   public void setAction(Action action)
+   {
+      this.action = action;
+   }
+
+   /**
+    * @return the revision
+    */
+   public int getRevision()
+   {
+      return revision;
+   }
+
+   /**
+    * @param revision
+    *           the revision to set
+    */
+   public void setRevision(int revision)
+   {
+      this.revision = revision;
+   }
+
+   /**
+    * @return the dateTime
+    */
+   public Date getDateTime()
+   {
+      return dateTime;
+   }
+
+   /**
+    * @param dateTime
+    *           the dateTime to set
+    */
+   public void setDateTime(Date dateTime)
+   {
+      this.dateTime = dateTime;
+   }
+
+   /**
+    * @return the user
+    */
+   public String getUser()
+   {
+      return user;
+   }
+
+   /**
+    * @param user
+    *           the user to set
+    */
+   public void setUser(String user)
+   {
+      this.user = user;
+   }
+
+   /**
+    * @return the label
+    */
+   public String getLabel()
+   {
+      return label;
+   }
+
+   /**
+    * @param label
+    *           the label to set
+    */
+   public void setLabel(String label)
+   {
+      this.label = label;
+   }
+
+   /**
+    * @return the commentOffset
+    */
+   public int getCommentOffset()
+   {
+      return commentOffset;
+   }
+
+   /**
+    * @param commentOffset
+    *           the commentOffset to set
+    */
+   public void setCommentOffset(int commentOffset)
+   {
+      this.commentOffset = commentOffset;
+   }
+
+   /**
+    * @return the labelCommentOffset
+    */
+   public int getLabelCommentOffset()
+   {
+      return labelCommentOffset;
+   }
+
+   /**
+    * @param labelCommentOffset
+    *           the labelCommentOffset to set
+    */
+   public void setLabelCommentOffset(int labelCommentOffset)
+   {
+      this.labelCommentOffset = labelCommentOffset;
+   }
+
+   /**
+    * @return the commentLength
+    */
+   public int getCommentLength()
+   {
+      return commentLength;
+   }
+
+   /**
+    * @param commentLength
+    *           the commentLength to set
+    */
+   public void setCommentLength(int commentLength)
+   {
+      this.commentLength = commentLength;
+   }
+
+   /**
+    * @return the labelCommentLength
+    */
+   public int getLabelCommentLength()
+   {
+      return labelCommentLength;
+   }
+
+   /**
+    * @param labelCommentLength
+    *           the labelCommentLength to set
+    */
+   public void setLabelCommentLength(int labelCommentLength)
+   {
+      this.labelCommentLength = labelCommentLength;
+   }
+
+   /**
     * @return the signature
     */
    public String getSignature()
@@ -152,13 +322,512 @@ public class RevisionRecord extends VssRecord
    }
 
    /**
+    * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+    *      org.jvss.physical.RecordHeader)
+    */
+   @Override
+   public void read(BufferReader reader, RecordHeader header)
+   {
+      super.read(reader, header);
+      prevRevOffset = reader.readInt32();
+      action = Action.valueOf(reader.readInt16());
+      revision = reader.readInt16();
+      dateTime = reader.readDateTime();
+      user = reader.readString(32);
+      label = reader.readString(32);
+      commentOffset = reader.readInt32();
+      labelCommentOffset = reader.readInt32();
+      commentLength = reader.readInt16();
+      labelCommentLength = reader.readInt16();
+   }
+
+   /**
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
    public void dump(PrintWriter writer) throws IOException
    {
-      // TODO Auto-generated method stub
+      writer.println(String.format("  Prev rev offset: {0:X6}", prevRevOffset));
+      writer.println(String.format("  #{0:D3} {1} by '{2}' at {3}", revision, action, user, dateTime));
+      writer.println(String.format("  Label: {0}", label));
+      writer.println(String.format("  Comment: length {0}, offset {1:X6}", commentLength, commentOffset));
+      writer.println(String
+         .format("  Label comment: length {0}, offset {1:X6}", labelCommentLength, labelCommentOffset));
 
    }
 
+   public static class CommonRevisionRecord extends RevisionRecord
+   {
+      VssName name;
+
+      String physical;
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         name = reader.readName();
+         physical = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+         super.dump(writer);
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+      }
+   }
+
+   public static class DestroyRevisionRecord extends RevisionRecord
+   {
+      VssName name;
+
+      short unkShort;
+
+      String physical;
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         name = reader.readName();
+         unkShort = reader.readInt16(); // 0 or 1
+         physical = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+         super.dump(writer);
+
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+      }
+   }
+
+   public static class RenameRevisionRecord extends RevisionRecord
+   {
+      VssName name;
+
+      VssName oldName;
+
+      String physical;
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the oldName
+       */
+      public VssName getOldName()
+      {
+         return oldName;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         name = reader.readName();
+         oldName = reader.readName();
+         physical = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+
+         writer.println(String.format("  Name: {0} -> {1} ({2})", oldName.shortName(), name.shortName(), physical));
+      }
+   }
+
+   public static class MoveRevisionRecord extends RevisionRecord
+   {
+      String projectPath;
+
+      VssName name;
+
+      String physical;
+
+      /**
+       * @return the projectPath
+       */
+      public String getProjectPath()
+      {
+         return projectPath;
+      }
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+         projectPath = reader.readString(260);
+         name = reader.readName();
+         physical = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+         super.dump(writer);
+         writer.println(String.format("  Project path: {0}", projectPath));
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+      }
+   }
+
+   public static class ShareRevisionRecord extends RevisionRecord
+   {
+      String projectPath;
+
+      VssName name;
+
+      short unpinnedRevision; // -1: shared, 0: pinned; >0 unpinned version
+
+      short pinnedRevision; // >0: pinned version, ==0 unpinned
+
+      short unkShort;
+
+      String physical;
+
+      /**
+       * @return the projectPath
+       */
+      public String getProjectPath()
+      {
+         return projectPath;
+      }
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the unpinnedRevision
+       */
+      public short getUnpinnedRevision()
+      {
+         return unpinnedRevision;
+      }
+
+      /**
+       * @return the pinnedRevision
+       */
+      public short getPinnedRevision()
+      {
+         return pinnedRevision;
+      }
+
+      /**
+       * @return the unkShort
+       */
+      public short getUnkShort()
+      {
+         return unkShort;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+         projectPath = reader.readString(260);
+         name = reader.readName();
+         unpinnedRevision = reader.readInt16();
+         pinnedRevision = reader.readInt16();
+         unkShort = reader.readInt16(); // often seems to increment
+         physical = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+         super.dump(writer);
+
+         writer.println(String.format("  Project path: {0}", projectPath));
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         if (unpinnedRevision == 0)
+         {
+            writer.println(String.format("  Pinned at revision {0}", pinnedRevision));
+         }
+         else if (unpinnedRevision > 0)
+         {
+            writer.println(String.format("  Unpinned at revision {0}", unpinnedRevision));
+         }
+      }
+   }
+
+   public static class BranchRevisionRecord extends RevisionRecord
+   {
+      VssName name;
+
+      String physical;
+
+      String branchFile;
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @return the branchFile
+       */
+      public String getBranchFile()
+      {
+         return branchFile;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         name = reader.readName();
+         physical = reader.readString(10);
+         branchFile = reader.readString(10);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Branched from file: {0}", branchFile));
+      }
+   }
+
+   public static class EditRevisionRecord extends RevisionRecord
+   {
+      int prevDeltaOffset;
+
+      String projectPath;
+
+      /**
+       * @return the prevDeltaOffset
+       */
+      public int getPrevDeltaOffset()
+      {
+         return prevDeltaOffset;
+      }
+
+      /**
+       * @return the projectPath
+       */
+      public String getProjectPath()
+      {
+         return projectPath;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         prevDeltaOffset = reader.readInt32();
+         reader.skip(4); // reserved; always 0
+         projectPath = reader.readString(260);
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+
+         writer.println(String.format("  Prev delta offset: {0:X6}", prevDeltaOffset));
+         writer.println(String.format("  Project path: {0}", projectPath));
+      }
+   }
+
+   public static class ArchiveRevisionRecord extends RevisionRecord
+   {
+      VssName name;
+
+      String physical;
+
+      String archivePath;
+
+      /**
+       * @return the name
+       */
+      public VssName getName()
+      {
+         return name;
+      }
+
+      /**
+       * @return the physical
+       */
+      public String getPhysical()
+      {
+         return physical;
+      }
+
+      /**
+       * @return the archivePath
+       */
+      public String getArchivePath()
+      {
+         return archivePath;
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#read(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public void read(BufferReader reader, RecordHeader header)
+      {
+         super.read(reader, header);
+
+         name = reader.readName();
+         physical = reader.readString(10);
+         reader.skip(2); // 0?
+         archivePath = reader.readString(260);
+         reader.skip(4); // ?
+      }
+
+      /**
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       */
+      @Override
+      public void dump(PrintWriter writer) throws IOException
+      {
+
+         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Archive path: {0}", archivePath));
+      }
+   }
 }
