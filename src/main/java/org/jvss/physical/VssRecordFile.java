@@ -18,7 +18,6 @@ package org.jvss.physical;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -105,7 +104,7 @@ public class VssRecordFile
       return false;
    }
 
-   protected <T extends VssRecord> T getRecord(Class<T> creationCallback, boolean ignoreUnknown)
+   protected <T extends VssRecord> T getRecord(RecordCreator<T> creationCallback, boolean ignoreUnknown)
    {
       RecordHeader recordHeader = new RecordHeader();
       recordHeader.Read(reader);
@@ -118,18 +117,7 @@ public class VssRecordFile
          recordHeader.CheckCrc();
       }
 
-      T record = null;
-      try
-      {
-         Constructor<T> constructor = creationCallback.getConstructor(RecordHeader.class, BufferReader.class);
-
-         record = constructor.newInstance(recordHeader, recordReader);
-      }
-      catch (Exception e)
-      {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
+      T record = creationCallback.createRecord(recordReader, recordHeader);
 
       if (record != null)
       {
@@ -145,13 +133,13 @@ public class VssRecordFile
       return record;
    }
 
-   protected <T extends VssRecord> T getRecord(Class<T> creationCallback, boolean ignoreUnknown, int offset)
+   protected <T extends VssRecord> T getRecord(RecordCreator<T> creationCallback, boolean ignoreUnknown, int offset)
    {
       reader.setOffset(offset);
       return getRecord(creationCallback, ignoreUnknown);
    }
 
-   protected <T extends VssRecord> T getNextRecord(Class<T> creationCallback, boolean skipUnknown)
+   protected <T extends VssRecord> T getNextRecord(RecordCreator<T> creationCallback, boolean skipUnknown)
 
    {
       while (reader.getRemaining() > RecordHeader.LENGTH)
@@ -163,6 +151,11 @@ public class VssRecordFile
          }
       }
       return null;
+   }
+
+   public static interface RecordCreator<T extends VssRecord>
+   {
+      T createRecord(BufferReader reader, RecordHeader header);
    }
 
    private static byte[] readFile(String filename)

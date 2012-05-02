@@ -90,22 +90,24 @@ public class ItemFile extends VssRecordFile
 
    public VssRecord getRecord(int offset)
    {
-         return getRecord(CreateRecord., ignoreUnknown)
-       //return GetRecord<VssRecord>(CreateRecord, false, offset);
+      return getRecord(new VssRecordCreator(), false, offset);
+      //return GetRecord<VssRecord>(CreateRecord, false, offset);
    }
 
-   public VssRecord GetNextRecord(bool skipUnknown)
+   public VssRecord GetNextRecord(boolean skipUnknown)
    {
-       return GetNextRecord<VssRecord>CreateRecord, skipUnknown;
+      return getNextRecord(new VssRecordCreator(), skipUnknown);
+      //         return GetNextRecord<VssRecord>(CreateRecord, skipUnknown);
    }
 
    public RevisionRecord GetFirstRevision()
    {
-       if (header.FirstRevOffset > 0)
-       {
-           return GetRecord<RevisionRecord>(CreateRevisionRecord, false, header.FirstRevOffset);
-       }
-       return null;
+      if (header.getFirstRevOffset() > 0)
+      {
+         return (RevisionRecord)getRecord(new VssRecordCreator(), false, header.getFirstRevOffset());
+         //return GetRecord<RevisionRecord>(CreateRevisionRecord, false, header.FirstRevOffset);
+      }
+      return null;
    }
 
    public RevisionRecord GetNextRevision(RevisionRecord revision)
@@ -164,33 +166,42 @@ public class ItemFile extends VssRecordFile
       return result;
    }
 
-   private static VssRecord CreateRecord(RecordHeader recordHeader, BufferReader recordReader)
+   private static class VssRecordCreator implements RecordCreator<VssRecord>
    {
-      VssRecord record = null;
 
-      //TODO swithc on string
-      switch (recordHeader.getSignature())
+      /**
+       * @see org.jvss.physical.VssRecordFile.RecordCreator#createRecord(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public VssRecord createRecord(BufferReader reader, RecordHeader header)
       {
-         case RevisionRecord.SIGNATURE :
-            record = CreateRevisionRecord(recordHeader, recordReader);
-            break;
-         case CommentRecord.SIGNATURE :
-            record = new CommentRecord();
-            break;
-         case CheckoutRecord.SIGNATURE :
-            record = new CheckoutRecord();
-            break;
-         case ProjectRecord.SIGNATURE :
-            record = new ProjectRecord();
-            break;
-         case BranchRecord.SIGNATURE :
-            record = new BranchRecord();
-            break;
-         case DeltaRecord.SIGNATURE :
-            record = new DeltaRecord();
-            break;
+         VssRecord record = null;
+
+         //TODO swithc on string
+         switch (recordHeader.getSignature())
+         {
+            case RevisionRecord.SIGNATURE :
+               record = CreateRevisionRecord(header, reader);
+               break;
+            case CommentRecord.SIGNATURE :
+               record = new CommentRecord();
+               break;
+            case CheckoutRecord.SIGNATURE :
+               record = new CheckoutRecord();
+               break;
+            case ProjectRecord.SIGNATURE :
+               record = new ProjectRecord();
+               break;
+            case BranchRecord.SIGNATURE :
+               record = new BranchRecord();
+               break;
+            case DeltaRecord.SIGNATURE :
+               record = new DeltaRecord();
+               break;
+         }
+         return record;
       }
-      return record;
    }
 
    private static RevisionRecord CreateRevisionRecord(RecordHeader recordHeader, BufferReader recordReader)
