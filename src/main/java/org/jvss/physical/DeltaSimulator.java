@@ -15,8 +15,6 @@
  */
 package org.jvss.physical;
 
-import org.jvss.physical.DeltaOperation.DeltaCommand;
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,12 +23,12 @@ import java.util.List;
  */
 public class DeltaSimulator
 {
-   public interface FromLogCallback
+   public static interface FromLogCallback
    {
       int fromLog(byte[] data, int offset, int count);
    }
 
-   public interface FromSuccessorCallback
+   public static interface FromSuccessorCallback
    {
       int fromSuccessor(int offset, int count);
    }
@@ -119,35 +117,46 @@ public class DeltaSimulator
       }
    }
 
-   public void read(int length, FromLogCallback fromLog, FromSuccessorCallback fromSuccessor)
+   public int read(byte[] buffer, int offset, int length)
    {
-      while (length > 0 && !eof)
-      {
-         DeltaOperation operation = enumerator.next();
-         int operationRemaining = operation.getLength() - operationOffset;
-         int count = Math.min(length, operationRemaining);
-         int bytesRead;
-         if (operation.getCommand() == DeltaCommand.WriteLog)
-         {
-            bytesRead = fromLog.fromLog(operation.getData(), operationOffset, count);
-         }
-         else
-         {
-            bytesRead = fromSuccessor.fromSuccessor(operation.getOffset() + operationOffset, count);
-         }
-         if (bytesRead == 0)
-         {
-            break;
-         }
-         operationOffset += bytesRead;
-         fileOffset += bytesRead;
-         if (length >= operationRemaining)
-         {
-            eof = !enumerator.hasNext();
-            operationOffset = 0;
-         }
-         length -= bytesRead;
-      }
+      //      int bytesRead = 0;
+      //      while (length > 0 && !eof)
+      //      {
+      //         DeltaOperation operation = enumerator.next();
+      //         int operationRemaining = operation.getLength() - operationOffset;
+      //         int count = Math.min(length, operationRemaining);
+      //         if (operation.getCommand() == DeltaCommand.WriteLog)
+      //         {
+      //            //bytesRead = fromLog.fromLog(operation.getData(), operationOffset, count);
+      //            System.arraycopy(operation.getData(), operationOffset, buffer, offset, count);
+      //            offset += count;
+      //            count -= count;
+      //            bytesRead += count;
+      //         }
+      //         else
+      //         {
+      //            bytesRead = fromSuccessor.fromSuccessor(operation.getOffset() + operationOffset, count);
+      //
+      //            baseStream.skip(opOffset); //TODO check this  baseStream.Seek(opOffset, SeekOrigin.Begin);
+      //            int opBytesRead = baseStream.read(buffer, offset, count);
+      //            offset += opBytesRead;
+      //            count -= opBytesRead;
+      //            bytesRead[0] += opBytesRead;
+      //         }
+      //         if (bytesRead == 0)
+      //         {
+      //            break;
+      //         }
+      //         operationOffset += bytesRead;
+      //         fileOffset += bytesRead;
+      //         if (length >= operationRemaining)
+      //         {
+      //            eof = !enumerator.hasNext();
+      //            operationOffset = 0;
+      //         }
+      //         length -= bytesRead;
+      //      }
+      return 0;
    }
 
    private void Reset()

@@ -27,7 +27,7 @@ public class DeltaOperation
     * Enumeration of file revision delta commands.
     * 
     */
-   public enum DeltaCommand {
+   public static enum DeltaCommand {
       WriteLog(0), // write data from the log file
       WriteSuccessor(1), // write data from the subsequent revision
       Stop(2); // indicates the last operation
