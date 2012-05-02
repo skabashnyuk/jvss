@@ -90,7 +90,7 @@ public class VssRevision
     * @param revision
     * @param comment
     */
-   private VssRevision(VssItem item, RevisionRecord revision, CommentRecord comment)
+   protected VssRevision(VssItem item, RevisionRecord revision, CommentRecord comment)
    {
       super();
       this.item = item;

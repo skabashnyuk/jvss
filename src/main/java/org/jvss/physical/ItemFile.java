@@ -112,26 +112,29 @@ public class ItemFile extends VssRecordFile
 
    public RevisionRecord GetNextRevision(RevisionRecord revision)
    {
-       reader.Offset = revision.Header.Offset + revision.Header.Length + RecordHeader.LENGTH;
-       return GetNextRecord<RevisionRecord>(CreateRevisionRecord, true);
+      reader.setOffset(revision.getHeader().getOffset() + revision.getHeader().getLength() + RecordHeader.LENGTH);
+      return getNextRecord(new RevisionRecordCreator(), true);
    }
 
    public RevisionRecord GetLastRevision()
    {
-       if (header.LastRevOffset > 0)
-       {
-           return GetRecord<RevisionRecord>(CreateRevisionRecord, false, header.LastRevOffset);
-       }
-       return null;
+      if (header.getLastRevOffset() > 0)
+      {
+         //return GetRecord<RevisionRecord>(CreateRevisionRecord, false, header.LastRevOffset);
+         return getRecord(new RevisionRecordCreator(), false, header.getLastRevOffset());
+      }
+      return null;
    }
 
    public RevisionRecord getPreviousRevision(RevisionRecord revision)
    {
-       if (revision.getPrevRevOffset() > 0)
-       {
-           return GetRecord<RevisionRecord>(CreateRevisionRecord, false, revision.PrevRevOffset);
-       }
-       return null;
+      if (revision.getPrevRevOffset() > 0)
+      {
+
+         //return GetRecord<RevisionRecord>(CreateRevisionRecord, false, revision.PrevRevOffset);
+         return getRecord(new RevisionRecordCreator(), false, revision.getPrevRevOffset());
+      }
+      return null;
    }
 
    public DeltaRecord getPreviousDelta(EditRevisionRecord revision)
@@ -176,86 +179,97 @@ public class ItemFile extends VssRecordFile
       @Override
       public VssRecord createRecord(BufferReader reader, RecordHeader header)
       {
-         VssRecord record = null;
-
-         //TODO swithc on string
-         switch (recordHeader.getSignature())
+         if (RevisionRecord.SIGNATURE.equals(header.getSignature()))
          {
-            case RevisionRecord.SIGNATURE :
-               record = CreateRevisionRecord(header, reader);
+            return new RevisionRecordCreator().createRecord(reader, header);
+         }
+         else if (CommentRecord.SIGNATURE.equals(header.getSignature()))
+         {
+            return new CommentRecord();
+         }
+         else if (CheckoutRecord.SIGNATURE.equals(header.getSignature()))
+         {
+            return new CheckoutRecord();
+         }
+         else if (ProjectRecord.SIGNATURE.equals(header.getSignature()))
+         {
+            return new ProjectRecord();
+         }
+         else if (BranchRecord.SIGNATURE.equals(header.getSignature()))
+         {
+            return new BranchRecord();
+         }
+         else if (DeltaRecord.SIGNATURE.equals(header.getSignature()))
+         {
+            return new DeltaRecord();
+         }
+
+         return null;
+      }
+   }
+
+   private static class RevisionRecordCreator implements RecordCreator<RevisionRecord>
+   {
+
+      /**
+       * @see org.jvss.physical.VssRecordFile.RecordCreator#createRecord(org.jvss.physical.BufferReader,
+       *      org.jvss.physical.RecordHeader)
+       */
+      @Override
+      public RevisionRecord createRecord(BufferReader reader, RecordHeader header)
+      {
+         if (header.getSignature() != RevisionRecord.SIGNATURE)
+         {
+            return null;
+         }
+
+         RevisionRecord record;
+         Action action = RevisionRecord.peekAction(reader);
+         switch (action)
+         {
+            case Label :
+               record = new RevisionRecord();
                break;
-            case CommentRecord.SIGNATURE :
-               record = new CommentRecord();
+            case DestroyProject :
+            case DestroyFile :
+               record = new DestroyRevisionRecord();
                break;
-            case CheckoutRecord.SIGNATURE :
-               record = new CheckoutRecord();
+            case RenameProject :
+            case RenameFile :
+               record = new RenameRevisionRecord();
                break;
-            case ProjectRecord.SIGNATURE :
-               record = new ProjectRecord();
+            case MoveFrom :
+            case MoveTo :
+               record = new MoveRevisionRecord();
                break;
-            case BranchRecord.SIGNATURE :
-               record = new BranchRecord();
+            case ShareFile :
+               record = new ShareRevisionRecord();
                break;
-            case DeltaRecord.SIGNATURE :
-               record = new DeltaRecord();
+            case BranchFile :
+            case CreateBranch :
+               record = new BranchRevisionRecord();
+               break;
+            case EditFile :
+               record = new EditRevisionRecord();
+               break;
+            case ArchiveProject :
+            case RestoreProject :
+               record = new ArchiveRevisionRecord();
+               break;
+            case CreateProject :
+            case AddProject :
+            case AddFile :
+            case DeleteProject :
+            case DeleteFile :
+            case RecoverProject :
+            case RecoverFile :
+            case CreateFile :
+            default :
+               record = new CommonRevisionRecord();
                break;
          }
          return record;
       }
    }
 
-   private static RevisionRecord CreateRevisionRecord(RecordHeader recordHeader, BufferReader recordReader)
-   {
-      if (recordHeader.getSignature() != RevisionRecord.SIGNATURE)
-      {
-         return null;
-      }
-
-      RevisionRecord record;
-      Action action = RevisionRecord.peekAction(recordReader);
-      switch (action)
-      {
-         case Label :
-            record = new RevisionRecord();
-            break;
-         case DestroyProject :
-         case DestroyFile :
-            record = new DestroyRevisionRecord();
-            break;
-         case RenameProject :
-         case RenameFile :
-            record = new RenameRevisionRecord();
-            break;
-         case MoveFrom :
-         case MoveTo :
-            record = new MoveRevisionRecord();
-            break;
-         case ShareFile :
-            record = new ShareRevisionRecord();
-            break;
-         case BranchFile :
-         case CreateBranch :
-            record = new BranchRevisionRecord();
-            break;
-         case EditFile :
-            record = new EditRevisionRecord();
-            break;
-         case ArchiveProject :
-         case RestoreProject :
-            record = new ArchiveRevisionRecord();
-            break;
-         case CreateProject :
-         case AddProject :
-         case AddFile :
-         case DeleteProject :
-         case DeleteFile :
-         case RecoverProject :
-         case RecoverFile :
-         case CreateFile :
-         default :
-            record = new CommonRevisionRecord();
-            break;
-      }
-      return record;
-   }
 }

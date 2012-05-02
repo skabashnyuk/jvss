@@ -18,6 +18,17 @@
  */
 package org.jvss.logical;
 
+import org.jvss.physical.ItemFile;
+import org.jvss.physical.ItemHeaderRecord.ItemType;
+import org.jvss.physical.NameFile;
+import org.jvss.physical.NameRecord;
+import org.jvss.physical.NameRecord.NameKind;
+import org.jvss.physical.ProjectHeaderRecord;
+import org.jvss.physical.VssName;
+
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Represents a VSS database and provides access to the items it contains.
  */
@@ -37,7 +48,7 @@ public class VssDatabase
 
    private final String dataPath;
 
-   private final String nameFile;
+   private final NameFile nameFile;
 
    private final VssProject rootProject;
 
@@ -90,139 +101,141 @@ public class VssDatabase
    {
       return encoding;
    }
-   
+
    public VssItem GetItem(String logicalPath)
    {
-//       var segments = logicalPath.Split(new char[] { ProjectSeparatorChar },
-//           StringSplitOptions.RemoveEmptyEntries);
-      String[] = logicalPath.split(ProjectSeparatorChar);
-       var index = segments[0] == RootProjectName ? 1 : 0;
-       VssProject project = rootProject;
-       while (index < segments.Length)
-       {
-           var name = segments[index++];
+      //       var segments = logicalPath.Split(new char[] { ProjectSeparatorChar },
+      //           StringSplitOptions.RemoveEmptyEntries);
+      String[] segments = logicalPath.split(ProjectSeparatorChar);
+      int index = segments[0] == RootProjectName ? 1 : 0;
+      VssProject project = rootProject;
+      while (index < segments.length)
+      {
+         String name = segments[index++];
 
-           var subproject = project.FindProject(name);
-           if (subproject != null)
-           {
-               project = subproject;
-               continue;
-           }
+         VssProject subproject = project.FindProject(name);
+         if (subproject != null)
+         {
+            project = subproject;
+            continue;
+         }
 
-           var file = project.FindFile(name);
-           if (file != null)
-           {
-               if (index == segments.Length)
-               {
-                   return file;
-               }
-               else
-               {
-                   var currentPath = string.Join(ProjectSeparator, segments, 0, index);
-                   throw new VssPathException(string.Format("{0} is not a project", currentPath));
-               }
-           }
+         VssFile file = project.FindFile(name);
+         if (file != null)
+         {
+            if (index == segments.length)
+            {
+               return file;
+            }
+            else
+            {
+               //var currentPath = String..Join(ProjectSeparator, segments, 0, index);
+               //TODO join Strings
+               throw new VssPathException(String.format("{0} is not a project", segments));
+            }
+         }
 
-           throw new VssPathException(string.Format("{0} not found in {1}", name, project.Path));
-       }
-       return project;
+         throw new VssPathException(String.format("{0} not found in {1}", name, project.getPath()));
+      }
+      return project;
    }
 
-   public VssItem GetItemPhysical(string physicalName)
+   public VssItem GetItemPhysical(String physicalName)
    {
-       physicalName = physicalName.ToUpper();
+      physicalName = physicalName.toUpperCase();
 
-       if (physicalName == RootProjectFile)
-       {
-           return rootProject;
-       }
+      if (physicalName == RootProjectFile)
+      {
+         return rootProject;
+      }
 
-       var physicalPath = GetDataPath(physicalName);
-       var itemFile = new ItemFile(physicalPath, encoding);
-       var isProject = itemFile.Header.ItemType == ItemType.Project;
-       var logicalName = GetFullName(itemFile.Header.Name);
-       var itemName = new VssItemName(logicalName, physicalName, isProject);
-       VssItem item;
-       if (isProject)
-       {
-           var parentFile = ((ProjectHeaderRecord)itemFile.Header).ParentFile;
-           var parent = (VssProject)GetItemPhysical(parentFile);
-           var logicalPath = BuildPath(parent, logicalName);
-           item = new VssProject(this, itemName, physicalPath, logicalPath);
-       }
-       else
-       {
-           item = new VssFile(this, itemName, physicalPath);
-       }
-       item.ItemFile = itemFile;
-       return item;
+      String physicalPath = GetDataPath(physicalName);
+      ItemFile itemFile = new ItemFile(physicalPath, encoding);
+      boolean isProject = itemFile.getHeader().getItemType() == ItemType.PROJECT;
+      String logicalName = GetFullName(itemFile.getHeader().getName());
+      VssItemName itemName = new VssItemName(logicalName, physicalName, isProject);
+      VssItem item;
+      if (isProject)
+      {
+         String parentFile = ((ProjectHeaderRecord)itemFile.getHeader()).getParentFile();
+         VssProject parent = (VssProject)GetItemPhysical(parentFile);
+         String logicalPath = BuildPath(parent, logicalName);
+         item = new VssProject(this, itemName, physicalPath, logicalPath);
+      }
+      else
+      {
+         item = new VssFile(this, itemName, physicalPath);
+      }
+      item.setItemFile(itemFile);
+      return item;
    }
 
-   public bool ItemExists(string physicalName)
+   public boolean ItemExists(String physicalName)
    {
-       var physicalPath = GetDataPath(physicalName);
-       return File.Exists(physicalPath);
+      String physicalPath = GetDataPath(physicalName);
+      return new File(physicalPath).exists();
    }
 
-   private VssDatabase(String path, String encoding)
+   private VssDatabase(String path, String encoding) throws IOException
    {
-       this.basePath = path;
-       this.encoding = encoding;
+      this.basePath = path;
+      this.encoding = encoding;
 
-       iniPath = Path.Combine(path, "srcsafe.ini");
-       var iniReader = new SimpleIniReader(iniPath);
-       iniReader.Parse();
+      iniPath = new File(path, "srcsafe.ini").getAbsolutePath();
+      SimpleIniReader iniReader = new SimpleIniReader(iniPath);
+      iniReader.parse();
 
-       dataPath = Path.Combine(path, iniReader.GetValue("Data_Path", "data"));
+      dataPath = new File(path, iniReader.getValue("Data_Path", "data")).getAbsolutePath();
 
-       var namesPath = Path.Combine(dataPath, "names.dat");
-       nameFile = new NameFile(namesPath, encoding);
+      String namesPath = new File(dataPath, "names.dat").getAbsolutePath();
+      nameFile = new NameFile(namesPath, encoding);
 
-       rootProject = OpenProject(null, RootProjectFile, RootProjectName);
+      rootProject = OpenProject(null, RootProjectFile, RootProjectName);
    }
 
-   internal VssProject OpenProject(VssProject parent, string physicalName, string logicalName)
+   private VssProject OpenProject(VssProject parent, String physicalName, String logicalName)
    {
-       var itemName = new VssItemName(logicalName, physicalName, true);
-       var logicalPath = BuildPath(parent, logicalName);
-       var physicalPath = GetDataPath(physicalName);
-       return new VssProject(this, itemName, physicalPath, logicalPath);
+      VssItemName itemName = new VssItemName(logicalName, physicalName, true);
+      String logicalPath = BuildPath(parent, logicalName);
+      String physicalPath = GetDataPath(physicalName);
+      return new VssProject(this, itemName, physicalPath, logicalPath);
    }
 
-   internal VssFile OpenFile(string physicalName, string logicalName)
+   private VssFile OpenFile(String physicalName, String logicalName)
    {
-       var itemName = new VssItemName(logicalName, physicalName, false);
-       var physicalPath = GetDataPath(physicalName);
-       return new VssFile(this, itemName, physicalPath);
+      VssItemName itemName = new VssItemName(logicalName, physicalName, false);
+      String physicalPath = GetDataPath(physicalName);
+      return new VssFile(this, itemName, physicalPath);
    }
 
-   private static string BuildPath(VssProject parent, string logicalName)
+   private static String BuildPath(VssProject parent, String logicalName)
    {
-       return parent != null ? parent.Path + ProjectSeparator + logicalName : logicalName;
+      return parent != null ? parent.getPath() + ProjectSeparator + logicalName : logicalName;
    }
 
-   internal string GetDataPath(string physicalName)
+   private String GetDataPath(String physicalName)
    {
-       return Path.Combine(Path.Combine(dataPath, physicalName.Substring(0, 1)), physicalName);
+      return new File(new File(dataPath, physicalName.substring(0, 1)).getAbsolutePath(), physicalName)
+         .getAbsolutePath();
    }
 
-   internal string GetFullName(VssName name)
+   private String GetFullName(VssName name)
    {
-       if (name.NameFileOffset != 0)
-       {
-           var nameRecord = nameFile.GetName(name.NameFileOffset);
-           var nameIndex = nameRecord.IndexOf(name.IsProject ? NameKind.Project : NameKind.Long);
-           if (nameIndex >= 0)
-           {
-               return nameRecord.GetName(nameIndex);
-           }
-       }
-       return name.ShortName;
+      if (name.nameFileOffset() != 0)
+      {
+         NameRecord nameRecord = nameFile.GetName(name.nameFileOffset());
+         int nameIndex = nameRecord.indexOf(name.isProject() ? NameKind.Project : NameKind.Long);
+         if (nameIndex >= 0)
+         {
+            return nameRecord.getName(nameIndex);
+         }
+      }
+      return name.shortName();
    }
 
-   internal VssItemName GetItemName(VssName name, string physicalName)
+   private VssItemName GetItemName(VssName name, String physicalName)
    {
-       return new VssItemName(GetFullName(name), physicalName, name.IsProject);
+      return new VssItemName(GetFullName(name), physicalName, name.isProject());
    }
 
 }
