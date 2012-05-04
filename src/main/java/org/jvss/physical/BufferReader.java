@@ -191,7 +191,7 @@ public class BufferReader
    {
       CheckRead(bytes);
 
-      byte[] result = Arrays.copyOfRange(data, offset, bytes);
+      byte[] result = Arrays.copyOfRange(data, offset, offset + bytes);
       //var result = new ArraySegment<byte>(data, offset, bytes);
       offset += bytes;
       return result;
