@@ -119,7 +119,7 @@ public class BufferReader
       int result = data[offset++] & 0xff | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
       //System.out.println(result);
       int result2 = ByteBuffer.wrap(data, offsetOrig, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-      System.out.println("int32->" + result + "=" + result2);
+      //System.out.println("int32->" + result + "=" + result2);
       return result2;
    }
 

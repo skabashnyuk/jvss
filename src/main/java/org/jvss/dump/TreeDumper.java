@@ -103,15 +103,13 @@ public class TreeDumper
       for (VssFile file : project.getFiles())
       {
          physicalNames.add(file.getPhysicalName());
-         writer
-            .format("{0}  {1} ({2}) - {3}", indentStr, file.getName(), file.getPhysicalName(), file.GetPath(project));
+         writer.format("%s  %s (%s) - %s", indentStr, file.getName(), file.getPhysicalName(), file.GetPath(project));
          writer.println();
          if (includeRevisions)
          {
             for (VssRevision version : file.getRevisions())
             {
-               writer.format("{0}    #{1} {2} {3}", indentStr, version.getVersion(), version.getUser(),
-                  version.getDate());
+               writer.format("%s    #%s %s %s", indentStr, version.getVersion(), version.getUser(), version.getDate());
                writer.println();
             }
          }
