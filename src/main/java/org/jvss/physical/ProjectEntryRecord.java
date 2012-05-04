@@ -38,18 +38,20 @@ public class ProjectEntryRecord extends VssRecord
       {
          switch (value)
          {
-            case 0 :
-               return None;
-            case 1 :
+
+            case 0x01 :
                return Deleted;
-            case 2 :
+            case 0x02 :
                return Binary;
-            case 3 :
+            case 0x04 :
                return LatestOnly;
-            case 10 :
+            case 0x08 :
                return Shared;
+            case 0 :
             default :
-               throw new IllegalArgumentException(value + " is not a valid ProjectEntryFlags");
+               return None;
+               //TODO check this
+               //throw new IllegalArgumentException(value + " is not a valid ProjectEntryFlags");
          }
       }
 
@@ -105,6 +107,15 @@ public class ProjectEntryRecord extends VssRecord
       writer.println(String.format("  Item Type: {0} - Name: {1} ({2})", itemType, name.shortName(), physical));
       writer.println(String.format("  Flags: {0}", flags));
       writer.println(String.format("  Pinned version: {0}", pinnedVersion));
+   }
+
+   /**
+    * @see org.jvss.physical.VssRecord#getSignature()
+    */
+   @Override
+   public String getSignature()
+   {
+      return SIGNATURE;
    }
 
    /**

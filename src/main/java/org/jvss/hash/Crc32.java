@@ -66,7 +66,7 @@ public class Crc32 implements Hash32
       int crc = initial;
       while (offset < limit)
       {
-         crc = crc >> 8 ^ table[(byte)(crc ^ bytes[offset++])];
+         crc = (short)(crc >> 8 ^ table[(byte)(crc ^ bytes[offset++])]);
       }
       return crc ^ finalV;
    }

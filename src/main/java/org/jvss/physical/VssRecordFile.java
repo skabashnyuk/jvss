@@ -85,12 +85,12 @@ public class VssRecordFile
             BufferReader recordReader = reader.extract(recordHeader.getLength());
 
             // comment records always seem to have a zero CRC
-            if (recordHeader.getSignature() != CommentRecord.SIGNATURE)
+            if (!recordHeader.getSignature().equals(CommentRecord.SIGNATURE))
             {
                recordHeader.CheckCrc();
             }
 
-            if (recordHeader.getSignature() == record.getSignature())
+            if (recordHeader.getSignature().equals(record.getSignature()))
             {
                record.read(recordReader, recordHeader);
                return true;
@@ -169,7 +169,7 @@ public class VssRecordFile
       //       }
       //       return data;
 
-      File f = new File(filename);
+      File f = new File(filename.toLowerCase());
       FileInputStream fin = null;
       FileChannel ch = null;
       try

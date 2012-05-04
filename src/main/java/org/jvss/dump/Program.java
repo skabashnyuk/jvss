@@ -52,6 +52,7 @@ public class Program
 
       String repoPath = "/home/sj/java/tmp/vss";//args[argIndex];
       VssDatabaseFactory df = new VssDatabaseFactory(repoPath);
+      df.setEncoding("Cp1251");
       VssDatabase db = df.Open();
 
       System.out.println("File hierarchy:");
@@ -65,26 +66,27 @@ public class Program
       for (char c = 'a'; c <= 'z'; ++c)
       {
 
-         String[] dataPaths = new File(db.getDataPath(), "" + c).list(new FilenameFilter()
+         File parentPath = new File(db.getDataPath(), "" + c);
+         String[] dataPaths = parentPath.list(new FilenameFilter()
          {
 
             @Override
             public boolean accept(File dir, String name)
             {
 
-               return name.matches("*.");
+               return true;//name.matches("*.");
             }
          });
          //           String[] dataPaths = Directory.GetFiles(
          //               new File(db.getDataPath(), c), "*.");
          for (String dataPath : dataPaths)
          {
-            String dataFile = dataPath.toUpperCase();
+            String dataFile = dataPath.toLowerCase();
             boolean orphaned = !tree.getPhysicalNames().contains(dataFile);
             System.out.println(Separator);
-            System.out.format("{0}{1}", dataPath, orphaned ? " (orphaned)" : "");
+            System.out.format("%s%s}", dataPath, orphaned ? " (orphaned)" : "");
             System.out.println();
-            dumpLogFile(dataPath);
+            dumpLogFile(new File(parentPath, dataPath).getAbsolutePath());
          }
       }
       System.out.println();

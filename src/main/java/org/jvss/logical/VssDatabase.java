@@ -33,7 +33,7 @@ public class VssDatabase
 {
    public static final String RootProjectName = "$";
 
-   public static final String RootProjectFile = "AAAAAAAA";
+   public static final String RootProjectFile = "aaaaaaaa";
 
    public static final String ProjectSeparatorChar = "/";
 

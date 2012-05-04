@@ -45,7 +45,7 @@ public class ItemFile extends VssRecordFile
       try
       {
          String fileSig = reader.readString(0x20);
-         if (fileSig != "SourceSafe@Microsoft")
+         if (!fileSig.equals("SourceSafe@Microsoft"))
          {
             throw new BadHeaderException("Incorrect file signature");
          }

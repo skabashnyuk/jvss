@@ -36,8 +36,6 @@ public class RecordHeader
 
    private short actualCrc;
 
-   private boolean isCrcValid;
-
    /**
     * @return the offset
     */
@@ -83,12 +81,12 @@ public class RecordHeader
     */
    public boolean isCrcValid()
    {
-      return isCrcValid;
+      return fileCrc == actualCrc;
    }
 
    public void CheckSignature(String expected)
    {
-      if (signature != expected)
+      if (!signature.equals(expected))
       {
          throw new RecordNotFoundException(String.format("Unexpected record signature: expected={0}, actual={1}",
             expected, signature));
@@ -97,7 +95,7 @@ public class RecordHeader
 
    public void CheckCrc()
    {
-      if (!isCrcValid)
+      if (!isCrcValid())
       {
          throw new RecordCrcException(this, String.format("CRC error in {0} record: expected={1}, actual={2}",
             signature, fileCrc, actualCrc));
@@ -116,7 +114,7 @@ public class RecordHeader
    public void dump(PrintStream writer) throws IOException
    {
       writer.format("Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})", signature, length,
-         offset, fileCrc, actualCrc, isCrcValid ? "valid" : "INVALID");
+         offset, fileCrc, actualCrc, isCrcValid() ? "valid" : "INVALID");
       writer.println();
    }
 }

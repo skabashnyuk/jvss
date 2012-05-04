@@ -92,7 +92,7 @@ public class TreeDumper
       }
       String indentStr = indentBuilder.toString();
       physicalNames.add(project.getPhysicalName());
-      writer.format("{0}{1}/ ({2})", indentStr, project.getName(), project.getPhysicalName());
+      writer.printf("%s%s/ (%s)", indentStr, project.getName(), project.getPhysicalName());
       writer.println();
 
       for (VssProject subproject : project.getProjects())

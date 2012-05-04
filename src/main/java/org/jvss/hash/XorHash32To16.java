@@ -18,6 +18,8 @@
  */
 package org.jvss.hash;
 
+import java.util.zip.CRC32;
+
 /**
  * 16-bit hash function based on XORing the upper and lower words of a 32-bit
  * hash.
@@ -47,7 +49,10 @@ public class XorHash32To16 implements Hash16
    @Override
    public short compute(byte[] bytes, int offset, int limit)
    {
-      int value32 = hash32.compute(bytes, offset, limit);
+      CRC32 crc32 = new CRC32();
+      crc32.update(bytes, offset, limit);
+      //crc32.getValue()
+      long value32 = hash32.compute(bytes, offset, limit);
       return (short)(value32 ^ value32 >> 16);
    }
 

@@ -16,8 +16,9 @@
 package org.jvss.logical;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -48,7 +49,7 @@ public class SimpleIniReader
       BufferedReader in = null;
       try
       {
-         in = new BufferedReader(new FileReader(filename));
+         in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "Cp1251"));
          String strLine;
 
          while ((strLine = in.readLine()) != null)

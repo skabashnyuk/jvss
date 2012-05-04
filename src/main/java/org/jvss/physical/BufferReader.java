@@ -15,11 +15,11 @@
  */
 package org.jvss.physical;
 
-import org.jvss.hash.Crc32;
-import org.jvss.hash.Hash16;
-import org.jvss.hash.XorHash32To16;
+import org.jvss.hash.VssCRC32;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -79,17 +79,17 @@ public class BufferReader
       return sum;
    }
 
-   private static Hash16 crc16 = new XorHash32To16(new Crc32(Crc32.IEEE));
+   //private static Hash16 crc16 = new XorHash32To16(new Crc32(Crc32.IEEE));
 
    public short crc16()
    {
-      return crc16.compute(data, offset, limit);
+      return VssCRC32.VssCrc16(data, offset, limit);//crc16.compute(data, offset, limit);
    }
 
    public short crc16(int bytes)
    {
       CheckRead(bytes);
-      return crc16.compute(data, offset, offset + bytes);
+      return VssCRC32.VssCrc16(data, offset, offset + bytes); //crc16.compute(data, offset, offset + bytes)
    }
 
    public void skip(int bytes)
@@ -101,13 +101,26 @@ public class BufferReader
    public short readInt16()
    {
       CheckRead(2);
-      return (short)(data[offset++] | data[offset++] << 8);
+      //return (short)(data[offset++] | data[offset++] << 8);
+      short result = ByteBuffer.wrap(data, offset, 2).order(ByteOrder.LITTLE_ENDIAN).getShort();
+      //short result2 = (short)(data[offset++] | data[offset++] << 8);
+      short result2 = (short)(data[offset++] & 0xff | data[offset++] << 8);
+
+      //System.out.println("int16->" + result + "=" + result2);
+
+      //offset += 2;
+      return result;
    }
 
    public int readInt32()
    {
       CheckRead(4);
-      return data[offset++] | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
+      int offsetOrig = offset;
+      int result = data[offset++] & 0xff | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
+      //System.out.println(result);
+      int result2 = ByteBuffer.wrap(data, offsetOrig, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+      System.out.println("int32->" + result + "=" + result2);
+      return result2;
    }
 
    public Date readDateTime()
