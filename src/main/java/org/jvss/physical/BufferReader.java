@@ -115,17 +115,17 @@ public class BufferReader
    public int readInt32()
    {
       CheckRead(4);
-      int offsetOrig = offset;
-      int result = data[offset++] & 0xff | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
+      //int offsetOrig = offset;
+      //int result = data[offset++] | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
       //System.out.println(result);
-      int result2 = ByteBuffer.wrap(data, offsetOrig, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-      //System.out.println("int32->" + result + "=" + result2);
+      int result2 = ByteBuffer.wrap(data, offset, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+      offset += 4;
       return result2;
    }
 
    public Date readDateTime()
    {
-      return new Date(readInt32());
+      return new Date((long)readInt32() * (long)1000);
    }
 
    public String readSignature(int length)
