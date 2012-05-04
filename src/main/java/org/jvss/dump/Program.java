@@ -136,16 +136,19 @@ public class Program
          {
             record.getHeader().dump(System.out);
             record.dump(System.out);
-            RevisionRecord revision = (RevisionRecord)record;
-            if (revision != null)
+            if (record instanceof RevisionRecord)
             {
-               if (itemFile.getHeader().getItemType() == ItemType.PROJECT)
+               RevisionRecord revision = (RevisionRecord)record;
+               if (revision != null)
                {
-                  projectActions.add(revision.getAction());
-               }
-               else
-               {
-                  fileActions.add(revision.getAction());
+                  if (itemFile.getHeader().getItemType() == ItemType.PROJECT)
+                  {
+                     projectActions.add(revision.getAction());
+                  }
+                  else
+                  {
+                     fileActions.add(revision.getAction());
+                  }
                }
             }
             record = itemFile.GetNextRecord(true);
