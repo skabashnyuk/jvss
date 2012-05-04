@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintStream;
 
 /**
  * Represents the header of a VSS record.
@@ -113,11 +113,10 @@ public class RecordHeader
       actualCrc = reader.crc16(length);
    }
 
-   public void dump(Writer writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
-      writer.write(String.format("Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})",
-         signature, length, offset, fileCrc, actualCrc, isCrcValid ? "valid" : "INVALID"));
-      writer.write('\n');
+      writer.format("Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})", signature, length,
+         offset, fileCrc, actualCrc, isCrcValid ? "valid" : "INVALID");
+      writer.println();
    }
-
 }

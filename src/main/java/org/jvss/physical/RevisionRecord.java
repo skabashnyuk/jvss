@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Date;
 
 /**
@@ -342,10 +342,10 @@ public class RevisionRecord extends VssRecord
    }
 
    /**
-    * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+    * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  Prev rev offset: {0:X6}", prevRevOffset));
       writer.println(String.format("  #{0:D3} {1} by '{2}' at {3}", revision, action, user, dateTime));
@@ -392,10 +392,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
          writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
@@ -441,10 +441,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
 
@@ -499,10 +499,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
 
          writer.println(String.format("  Name: {0} -> {1} ({2})", oldName.shortName(), name.shortName(), physical));
@@ -555,10 +555,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
          writer.println(String.format("  Project path: {0}", projectPath));
@@ -645,10 +645,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
 
@@ -712,10 +712,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
 
          writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
@@ -760,10 +760,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
 
          writer.println(String.format("  Prev delta offset: {0:X6}", prevDeltaOffset));
@@ -820,10 +820,10 @@ public class RevisionRecord extends VssRecord
       }
 
       /**
-       * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+       * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
        */
       @Override
-      public void dump(PrintWriter writer) throws IOException
+      public void dump(PrintStream writer) throws IOException
       {
 
          writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));

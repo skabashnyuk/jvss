@@ -18,7 +18,7 @@ package org.jvss.physical;
 import org.jvss.physical.DeltaOperation.DeltaCommand;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,10 +72,10 @@ public class DeltaRecord extends VssRecord
    }
 
    /**
-    * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+    * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       for (DeltaOperation operation : operations)
       {

@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Date;
 
 /**
@@ -217,10 +217,10 @@ public class FileHeaderRecord extends ItemHeaderRecord
    }
 
    /**
-    * @see org.jvss.physical.ItemHeaderRecord#dump(java.io.PrintWriter)
+    * @see org.jvss.physical.ItemHeaderRecord#dump(java.io.PrintStream)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       super.dump(writer);
 

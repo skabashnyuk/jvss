@@ -21,7 +21,7 @@ package org.jvss.physical;
 import org.jvss.physical.ItemHeaderRecord.ItemType;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * VSS record for representing an item stored in particular project.
@@ -100,7 +100,7 @@ public class ProjectEntryRecord extends VssRecord
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  Item Type: {0} - Name: {1} ({2})", itemType, name.shortName(), physical));
       writer.println(String.format("  Flags: {0}", flags));

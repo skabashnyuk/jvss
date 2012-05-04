@@ -15,7 +15,7 @@
  */
 package org.jvss.physical;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 /**
@@ -90,7 +90,7 @@ public class DeltaOperation
 
    private byte[] data; // WriteLog only
 
-   public void dump(PrintWriter writer)
+   public void dump(PrintStream writer)
    {
       final int MAX_DATA_DUMP = 40;
       writer.println(String.format("  {0}: Offset={1}, Length={2}", command, offset, length));

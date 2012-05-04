@@ -19,7 +19,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * VSS header record for the name file.
@@ -43,7 +43,7 @@ public class NameHeaderRecord extends VssRecord
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  EOF offset: {0:X6}", eofOffset));
 

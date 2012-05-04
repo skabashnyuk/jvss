@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Date;
 
 /**
@@ -89,7 +89,7 @@ public class CheckoutRecord extends VssRecord
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  User: {0} @ {1}", user, dateTime));
       writer.println(String.format("  Working: {0}", workingDir));

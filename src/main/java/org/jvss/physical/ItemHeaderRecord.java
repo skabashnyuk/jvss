@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * Base class for item VSS header records.
@@ -184,10 +184,10 @@ public class ItemHeaderRecord extends VssRecord
    }
 
    /**
-    * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+    * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  Item Type: {0} - Revisions: {1} - Name: {2}", itemType.getValue(), revisions,
          name.shortName()));

@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * VSS record representing a project file.
@@ -70,7 +70,7 @@ public class ProjectRecord extends VssRecord
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  Prev project offset: {0:X6}", prevProjectOffset));
       writer.println(String.format("  Project file: {0}", projectFile));

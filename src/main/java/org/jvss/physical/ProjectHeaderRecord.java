@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * VSS header record for a project.
@@ -86,10 +86,10 @@ public class ProjectHeaderRecord extends ItemHeaderRecord
    }
 
    /**
-    * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
+    * @see org.jvss.physical.VssRecord#dump(java.io.PrintStream)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       super.dump(writer);
 

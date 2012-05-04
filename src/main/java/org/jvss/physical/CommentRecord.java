@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * VSS record representing a comment message.
@@ -50,7 +50,7 @@ public class CommentRecord extends VssRecord
     * @see org.jvss.physical.VssRecord#dump(java.io.PrintWriter)
     */
    @Override
-   public void dump(PrintWriter writer) throws IOException
+   public void dump(PrintStream writer) throws IOException
    {
       writer.println(String.format("  {0}", comment));
 

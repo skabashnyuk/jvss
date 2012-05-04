@@ -16,7 +16,7 @@
 package org.jvss.physical;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * Base class for VSS records.
@@ -48,5 +48,5 @@ public abstract class VssRecord
       return header;
    }
 
-   public abstract void dump(PrintWriter writer) throws IOException;
+   public abstract void dump(PrintStream writer) throws IOException;
 }
