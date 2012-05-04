@@ -47,8 +47,7 @@ public class FileHeaderRecord extends ItemHeaderRecord
       {
          switch (value)
          {
-            case 0 :
-               return None;
+
             case 0x01 :
                return Locked;
             case 0x02 :
@@ -59,8 +58,10 @@ public class FileHeaderRecord extends ItemHeaderRecord
                return Shared;
             case 0x40 :
                return CheckedOut;
+            case 0 :
             default :
-               throw new IllegalArgumentException(value + " is not a valid FileFlags");
+               return None;
+               //throw new IllegalArgumentException(value + " is not a valid FileFlags");
          }
       }
    }
@@ -224,17 +225,29 @@ public class FileHeaderRecord extends ItemHeaderRecord
    {
       super.dump(writer);
 
-      writer.println(String.format("  Flags: {0}", flags));
-      writer.println(String.format("  Branched from file: {0}", branchFile));
-      writer.println(String.format("  Branch offset: {0:X6}", branchOffset));
-      writer.println(String.format("  Branch count: {0}", branchCount));
-      writer.println(String.format("  Project offset: {0:X6}", projectOffset));
-      writer.println(String.format("  Project count: {0}", projectCount));
-      writer.println(String.format("  First/last checkout offset: {0:X6}/{1:X6}", firstCheckoutOffset,
-         lastCheckoutOffset));
-      writer.println(String.format("  Data CRC: {0:X8}", dataCrc));
-      writer.println(String.format("  Last revision time: {0}", lastRevDateTime));
-      writer.println(String.format("  Modification time: {0}", modificationDateTime));
-      writer.println(String.format("  Creation time: {0}", creationDateTime));
+      //      writer.println(String.format("  Flags: {0}", flags));
+      //      writer.println(String.format("  Branched from file: {0}", branchFile));
+      //      writer.println(String.format("  Branch offset: {0:X6}", branchOffset));
+      //      writer.println(String.format("  Branch count: {0}", branchCount));
+      //      writer.println(String.format("  Project offset: {0:X6}", projectOffset));
+      //      writer.println(String.format("  Project count: {0}", projectCount));
+      //      writer.println(String.format("  First/last checkout offset: {0:X6}/{1:X6}", firstCheckoutOffset,
+      //         lastCheckoutOffset));
+      //      writer.println(String.format("  Data CRC: {0:X8}", dataCrc));
+      //      writer.println(String.format("  Last revision time: {0}", lastRevDateTime));
+      //      writer.println(String.format("  Modification time: {0}", modificationDateTime));
+      //      writer.println(String.format("  Creation time: {0}", creationDateTime));
+
+      writer.println(String.format("  Flags: %s", flags));
+      writer.println(String.format("  Branched from file: %s", branchFile));
+      writer.println(String.format("  Branch offset: %s", branchOffset));
+      writer.println(String.format("  Branch count: %s", branchCount));
+      writer.println(String.format("  Project offset: %s", projectOffset));
+      writer.println(String.format("  Project count: %s", projectCount));
+      writer.println(String.format("  First/last checkout offset: %s/%s", firstCheckoutOffset, lastCheckoutOffset));
+      writer.println(String.format("  Data CRC: %s", dataCrc));
+      writer.println(String.format("  Last revision time: %s", lastRevDateTime));
+      writer.println(String.format("  Modification time: %s", modificationDateTime));
+      writer.println(String.format("  Creation time: %s", creationDateTime));
    }
 }

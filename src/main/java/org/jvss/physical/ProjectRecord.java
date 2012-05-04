@@ -72,7 +72,7 @@ public class ProjectRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  Prev project offset: {0:X6}", prevProjectOffset));
-      writer.println(String.format("  Project file: {0}", projectFile));
+      writer.println(String.format("  Prev project offset: %s", prevProjectOffset));
+      writer.println(String.format("  Project file: %s", projectFile));
    }
 }

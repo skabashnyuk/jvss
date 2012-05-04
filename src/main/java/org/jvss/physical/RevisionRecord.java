@@ -398,7 +398,7 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
       }
    }
 
@@ -448,7 +448,7 @@ public class RevisionRecord extends VssRecord
       {
          super.dump(writer);
 
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
       }
    }
 
@@ -505,7 +505,7 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
 
-         writer.println(String.format("  Name: {0} -> {1} ({2})", oldName.shortName(), name.shortName(), physical));
+         writer.println(String.format("  Name: %s -> %s (%s)", oldName.shortName(), name.shortName(), physical));
       }
    }
 
@@ -561,8 +561,8 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
          super.dump(writer);
-         writer.println(String.format("  Project path: {0}", projectPath));
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Project path: %s", projectPath));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
       }
    }
 
@@ -652,15 +652,15 @@ public class RevisionRecord extends VssRecord
       {
          super.dump(writer);
 
-         writer.println(String.format("  Project path: {0}", projectPath));
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
+         writer.println(String.format("  Project path: %s", projectPath));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
          if (unpinnedRevision == 0)
          {
-            writer.println(String.format("  Pinned at revision {0}", pinnedRevision));
+            writer.println(String.format("  Pinned at revision %s", pinnedRevision));
          }
          else if (unpinnedRevision > 0)
          {
-            writer.println(String.format("  Unpinned at revision {0}", unpinnedRevision));
+            writer.println(String.format("  Unpinned at revision %s", unpinnedRevision));
          }
       }
    }
@@ -718,8 +718,8 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
 
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
-         writer.println(String.format("  Branched from file: {0}", branchFile));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
+         writer.println(String.format("  Branched from file: %s", branchFile));
       }
    }
 
@@ -766,8 +766,8 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
 
-         writer.println(String.format("  Prev delta offset: {0:X6}", prevDeltaOffset));
-         writer.println(String.format("  Project path: {0}", projectPath));
+         writer.println(String.format("  Prev delta offset: %s", prevDeltaOffset));
+         writer.println(String.format("  Project path: %s", projectPath));
       }
    }
 
@@ -826,8 +826,8 @@ public class RevisionRecord extends VssRecord
       public void dump(PrintStream writer) throws IOException
       {
 
-         writer.println(String.format("  Name: {0} ({1})", name.shortName(), physical));
-         writer.println(String.format("  Archive path: {0}", archivePath));
+         writer.println(String.format("  Name: %s (%s)", name.shortName(), physical));
+         writer.println(String.format("  Archive path: %s", archivePath));
       }
    }
 }

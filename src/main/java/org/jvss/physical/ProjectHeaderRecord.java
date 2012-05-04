@@ -93,10 +93,10 @@ public class ProjectHeaderRecord extends ItemHeaderRecord
    {
       super.dump(writer);
 
-      writer.println(String.format("  Parent project: {0}", parentProject));
-      writer.println(String.format("  Parent file: {0}", parentFile));
-      writer.println(String.format("  Total items: {0}", totalItems));
-      writer.println(String.format("  Subprojects: {0}", subprojects));
+      writer.println(String.format("  Parent project: %s", parentProject));
+      writer.println(String.format("  Parent file: %s", parentFile));
+      writer.println(String.format("  Total items: %s", totalItems));
+      writer.println(String.format("  Subprojects: %s", subprojects));
    }
 
 }

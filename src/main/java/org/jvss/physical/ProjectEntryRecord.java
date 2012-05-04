@@ -104,9 +104,9 @@ public class ProjectEntryRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  Item Type: {0} - Name: {1} ({2})", itemType, name.shortName(), physical));
-      writer.println(String.format("  Flags: {0}", flags));
-      writer.println(String.format("  Pinned version: {0}", pinnedVersion));
+      writer.println(String.format("  Item Type: %s - Name: %s (%s)", itemType, name.shortName(), physical));
+      writer.println(String.format("  Flags: %s", flags));
+      writer.println(String.format("  Pinned version: %s", pinnedVersion));
    }
 
    /**

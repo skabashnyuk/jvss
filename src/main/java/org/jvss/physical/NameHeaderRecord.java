@@ -45,7 +45,7 @@ public class NameHeaderRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  EOF offset: {0:X6}", eofOffset));
+      writer.println(String.format("  EOF offset: %s", eofOffset));
 
    }
 

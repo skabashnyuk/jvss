@@ -74,7 +74,7 @@ public class Program
             public boolean accept(File dir, String name)
             {
 
-               return true;//name.matches("*.");
+               return !name.contains(".");//name.matches("\\*.");
             }
          });
          //           String[] dataPaths = Directory.GetFiles(
@@ -82,7 +82,7 @@ public class Program
          for (String dataPath : dataPaths)
          {
             String dataFile = dataPath.toLowerCase();
-            boolean orphaned = !tree.getPhysicalNames().contains(dataFile);
+            boolean orphaned = !tree.getPhysicalNames().contains(dataPath.toUpperCase());
             System.out.println(Separator);
             System.out.format("%s%s}", dataPath, orphaned ? " (orphaned)" : "");
             System.out.println();
@@ -153,7 +153,8 @@ public class Program
       }
       catch (Exception e)
       {
-         System.out.format("ERROR: {0}", e.getMessage());
+         e.printStackTrace();
+         System.out.format("ERROR: %s", e.getMessage());
       }
    }
 

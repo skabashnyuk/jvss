@@ -91,16 +91,27 @@ public class CheckoutRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  User: {0} @ {1}", user, dateTime));
-      writer.println(String.format("  Working: {0}", workingDir));
-      writer.println(String.format("  Machine: {0}", machine));
-      writer.println(String.format("  Project: {0}", project));
-      writer.println(String.format("  Comment: {0}", comment));
-      writer.println(String.format("  Revision: #{0:D3}", revision));
-      writer.println(String.format("  Flags: {0:X4}{1}", flags, exclusive ? " (exclusive)" : ""));
-      writer.println(String.format("  Prev checkout offset: {0:X6}", prevCheckoutOffset));
-      writer.println(String.format("  This checkout offset: {0:X6}", thisCheckoutOffset));
-      writer.println(String.format("  Checkouts: {0}", checkouts));
+      //      writer.println(String.format("  User: %s @ {1}", user, dateTime));
+      //      writer.println(String.format("  Working: %s", workingDir));
+      //      writer.println(String.format("  Machine: %s", machine));
+      //      writer.println(String.format("  Project: %s", project));
+      //      writer.println(String.format("  Comment: %s", comment));
+      //      writer.println(String.format("  Revision: #{0:D3}", revision));
+      //      writer.println(String.format("  Flags: {0:X4}{1}", flags, exclusive ? " (exclusive)" : ""));
+      //      writer.println(String.format("  Prev checkout offset: {0:X6}", prevCheckoutOffset));
+      //      writer.println(String.format("  This checkout offset: {0:X6}", thisCheckoutOffset));
+      //      writer.println(String.format("  Checkouts: %s", checkouts));
+
+      writer.println(String.format("  User: %s @ %s", user, dateTime));
+      writer.println(String.format("  Working: %s", workingDir));
+      writer.println(String.format("  Machine: %s", machine));
+      writer.println(String.format("  Project: %s", project));
+      writer.println(String.format("  Comment: %s", comment));
+      writer.println(String.format("  Revision: %s", revision));
+      writer.println(String.format("  Flags: %s %s", flags, exclusive ? " (exclusive)" : ""));
+      writer.println(String.format("  Prev checkout offset: %s", prevCheckoutOffset));
+      writer.println(String.format("  This checkout offset: %s", thisCheckoutOffset));
+      writer.println(String.format("  Checkouts: %s", checkouts));
 
    }
 

@@ -155,7 +155,7 @@ public class NameRecord extends VssRecord
    {
       for (int i = 0; i < kindCount; ++i)
       {
-         writer.println(String.format("  {0} name: {1}", kinds[i], names[i]));
+         writer.println(String.format("  %s name: %s", kinds[i], names[i]));
       }
    }
 }

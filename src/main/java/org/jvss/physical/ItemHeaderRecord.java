@@ -189,14 +189,23 @@ public class ItemHeaderRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  Item Type: {0} - Revisions: {1} - Name: {2}", itemType.getValue(), revisions,
+      //      writer.println(String.format("  Item Type: {0} - Revisions: {1} - Name: {2}", itemType.getValue(), revisions,
+      //         name.shortName()));
+      //      writer.println(String.format("  Name offset: {0:X6}", name.nameFileOffset()));
+      //      writer.println(String.format("  First revision: #{0:D3}", firstRevision));
+      //      writer.println(String.format("  Data extension: {0}", dataExt));
+      //      writer.println(String.format("  First/last rev offset: {0:X6}/{1:X6}", firstRevOffset, lastRevOffset));
+      //      writer.println(String.format("  EOF offset: {0:X6}", eofOffset));
+      //      writer.println(String.format("  Rights offset: {0:X8}", rightsOffset));
+
+      writer.println(String.format("  Item Type: %s - Revisions: %s - Name: %s", itemType.getValue(), revisions,
          name.shortName()));
-      writer.println(String.format("  Name offset: {0:X6}", name.nameFileOffset()));
-      writer.println(String.format("  First revision: #{0:D3}", firstRevision));
-      writer.println(String.format("  Data extension: {0}", dataExt));
-      writer.println(String.format("  First/last rev offset: {0:X6}/{1:X6}", firstRevOffset, lastRevOffset));
-      writer.println(String.format("  EOF offset: {0:X6}", eofOffset));
-      writer.println(String.format("  Rights offset: {0:X8}", rightsOffset));
+      writer.println(String.format("  Name offset: %s", name.nameFileOffset()));
+      writer.println(String.format("  First revision: %s", firstRevision));
+      writer.println(String.format("  Data extension: %s", dataExt));
+      writer.println(String.format("  First/last rev offset: %s/%s", firstRevOffset, lastRevOffset));
+      writer.println(String.format("  EOF offset: %s", eofOffset));
+      writer.println(String.format("  Rights offset: %s", rightsOffset));
    }
 
 }

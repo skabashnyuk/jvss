@@ -52,7 +52,7 @@ public class CommentRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  {0}", comment));
+      writer.println(String.format("  %s", comment));
 
    }
 

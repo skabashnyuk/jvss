@@ -68,8 +68,11 @@ public class BranchRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  Prev branch offset: {0:X6}", prevBranchOffset));
-      writer.println(String.format("  Branch file: {0}", branchFile));
+      //writer.println(String.format("  Prev branch offset: {0:X6}", prevBranchOffset));
+      //writer.println(String.format("  Branch file: {%s}", branchFile));
+
+      writer.println(String.format("  Prev branch offset: %s", prevBranchOffset));
+      writer.println(String.format("  Branch file: %s", branchFile));
 
    }
 
