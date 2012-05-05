@@ -69,7 +69,7 @@ public class DeltaOperation
       DeltaOperation result = new DeltaOperation();
       result.command = DeltaCommand.WriteLog;
       result.length = length;
-      result.data = Arrays.copyOfRange(data, offset, length);//TODO check this
+      result.data = Arrays.copyOfRange(data, offset, offset + length);//TODO check this
       return result;
    }
 
