@@ -31,6 +31,7 @@ import org.jvss.physical.VssRecord;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,14 +80,16 @@ public class Program
          });
          //           String[] dataPaths = Directory.GetFiles(
          //               new File(db.getDataPath(), c), "*.");
+
+         Arrays.sort(dataPaths);
          for (String dataPath : dataPaths)
          {
-            String dataFile = dataPath.toLowerCase();
-            boolean orphaned = !tree.getPhysicalNames().contains(dataPath.toUpperCase());
+            String dataFile = new File(parentPath, dataPath.toLowerCase()).getAbsolutePath();
+            boolean orphaned = !tree.getPhysicalNames().contains(dataPath);
             System.out.println(Separator);
-            System.out.format("%s%s}", dataPath, orphaned ? " (orphaned)" : "");
+            System.out.format("%s%s", dataFile, orphaned ? " (orphaned)" : "");
             System.out.println();
-            dumpLogFile(new File(parentPath, dataPath).getAbsolutePath());
+            dumpLogFile(dataFile);
          }
       }
       System.out.println();
@@ -178,7 +181,7 @@ public class Program
       }
       catch (Exception e)
       {
-         System.out.format("ERROR: {0}", e.getMessage());
+         System.out.format("ERROR: %s", e.getMessage());
       }
    }
 }

@@ -23,8 +23,8 @@ import org.jvss.logical.VssProject;
 import org.jvss.logical.VssRevision;
 
 import java.io.PrintStream;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Dumps the VSS project/file hierarchy to a text writer.
@@ -41,7 +41,7 @@ public class TreeDumper
    public TreeDumper(PrintStream writer)
    {
       this.writer = writer;
-      this.physicalNames = new HashSet<String>();
+      this.physicalNames = new TreeSet<String>();
    }
 
    /**
@@ -91,7 +91,7 @@ public class TreeDumper
          indentBuilder.append(' ');
       }
       String indentStr = indentBuilder.toString();
-      physicalNames.add(project.getPhysicalName());
+      physicalNames.add(project.getPhysicalName().toLowerCase());
       writer.printf("%s%s/ (%s)", indentStr, project.getName(), project.getPhysicalName());
       writer.println();
 
@@ -102,7 +102,7 @@ public class TreeDumper
 
       for (VssFile file : project.getFiles())
       {
-         physicalNames.add(file.getPhysicalName());
+         physicalNames.add(file.getPhysicalName().toLowerCase());
          writer.format("%s  %s (%s) - %s", indentStr, file.getName(), file.getPhysicalName(), file.GetPath(project));
          writer.println();
          if (includeRevisions)
