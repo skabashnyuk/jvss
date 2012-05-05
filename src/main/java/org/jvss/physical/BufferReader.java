@@ -104,11 +104,11 @@ public class BufferReader
       //return (short)(data[offset++] | data[offset++] << 8);
       short result = ByteBuffer.wrap(data, offset, 2).order(ByteOrder.LITTLE_ENDIAN).getShort();
       //short result2 = (short)(data[offset++] | data[offset++] << 8);
-      short result2 = (short)(data[offset++] & 0xff | data[offset++] << 8);
+      //short result2 = (short)(data[offset++] & 0xff | data[offset++] << 8);
 
-      //System.out.println("int16->" + result + "=" + result2);
+      //System.out.println("ReadInt16 " + result);
 
-      //offset += 2;
+      offset += 2;
       return result;
    }
 
@@ -120,6 +120,7 @@ public class BufferReader
       //System.out.println(result);
       int result2 = ByteBuffer.wrap(data, offset, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
       offset += 4;
+      //System.out.println("ReadInt32 " + result2);
       return result2;
    }
 
