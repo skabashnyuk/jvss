@@ -93,7 +93,7 @@ public class DeltaOperation
    public void dump(PrintStream writer)
    {
       final int MAX_DATA_DUMP = 40;
-      writer.println(String.format("  {0}: Offset={1}, Length={2}", command, offset, length));
+      writer.print(String.format("  %s: Offset=%d, Length=%d", command, offset, length));
       if (data != null)
       {
          int dumpLength = data.length;
@@ -111,7 +111,7 @@ public class DeltaOperation
             byte b = data[i];
             buf.append(b >= 0x20 && b <= 0x7E ? (char)b : '.');
          }
-         writer.println(String.format(", Data: {0}{1}", buf.toString(), truncated ? "..." : ""));
+         writer.print(String.format(", Data: %s%s", buf.toString(), truncated ? "..." : ""));
       }
       writer.println();
    }
