@@ -79,17 +79,15 @@ public class BufferReader
       return sum;
    }
 
-   //private static Hash16 crc16 = new XorHash32To16(new Crc32(Crc32.IEEE));
-
    public short crc16()
    {
-      return VssCRC32.VssCrc16(data, offset, limit);//crc16.compute(data, offset, limit);
+      return VssCRC32.VssCrc16(data, offset, limit);
    }
 
    public short crc16(int bytes)
    {
       CheckRead(bytes);
-      return VssCRC32.VssCrc16(data, offset, offset + bytes); //crc16.compute(data, offset, offset + bytes)
+      return VssCRC32.VssCrc16(data, offset, offset + bytes);
    }
 
    public void skip(int bytes)
@@ -101,13 +99,7 @@ public class BufferReader
    public short readInt16()
    {
       CheckRead(2);
-      //return (short)(data[offset++] | data[offset++] << 8);
       short result = ByteBuffer.wrap(data, offset, 2).order(ByteOrder.LITTLE_ENDIAN).getShort();
-      //short result2 = (short)(data[offset++] | data[offset++] << 8);
-      //short result2 = (short)(data[offset++] & 0xff | data[offset++] << 8);
-
-      //System.out.println("ReadInt16 " + result);
-
       offset += 2;
       return result;
    }
@@ -115,12 +107,8 @@ public class BufferReader
    public int readInt32()
    {
       CheckRead(4);
-      //int offsetOrig = offset;
-      //int result = data[offset++] | data[offset++] << 8 | data[offset++] << 16 | data[offset++] << 24;
-      //System.out.println(result);
       int result2 = ByteBuffer.wrap(data, offset, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
       offset += 4;
-      //System.out.println("ReadInt32 " + result2);
       return result2;
    }
 
@@ -193,7 +181,6 @@ public class BufferReader
       CheckRead(bytes);
 
       byte[] result = Arrays.copyOfRange(data, offset, offset + bytes);
-      //var result = new ArraySegment<byte>(data, offset, bytes);
       offset += bytes;
       return result;
    }
