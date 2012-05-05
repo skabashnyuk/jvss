@@ -198,14 +198,14 @@ public class ItemHeaderRecord extends VssRecord
       //      writer.println(String.format("  EOF offset: {0:X6}", eofOffset));
       //      writer.println(String.format("  Rights offset: {0:X8}", rightsOffset));
 
-      writer.println(String.format("  Item Type: %s - Revisions: %s - Name: %s", itemType.getValue(), revisions,
-         name.shortName()));
-      writer.println(String.format("  Name offset: %s", name.nameFileOffset()));
-      writer.println(String.format("  First revision: %s", firstRevision));
+      writer
+         .println(String.format("  Item Type: %s - Revisions: %s - Name: %s", itemType, revisions, name.shortName()));
+      writer.println(String.format("  Name offset: %06X", name.nameFileOffset()));
+      writer.println(String.format("  First revision: #%03d", firstRevision));
       writer.println(String.format("  Data extension: %s", dataExt));
-      writer.println(String.format("  First/last rev offset: %s/%s", firstRevOffset, lastRevOffset));
-      writer.println(String.format("  EOF offset: %s", eofOffset));
-      writer.println(String.format("  Rights offset: %s", rightsOffset));
+      writer.println(String.format("  First/last rev offset: %06X/%06X", firstRevOffset, lastRevOffset));
+      writer.println(String.format("  EOF offset: %06X", eofOffset));
+      writer.println(String.format("  Rights offset: %08X", rightsOffset));
    }
 
 }

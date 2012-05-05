@@ -347,12 +347,19 @@ public class RevisionRecord extends VssRecord
    @Override
    public void dump(PrintStream writer) throws IOException
    {
-      writer.println(String.format("  Prev rev offset: {0:X6}", prevRevOffset));
-      writer.println(String.format("  #{0:D3} {1} by '{2}' at {3}", revision, action, user, dateTime));
-      writer.println(String.format("  Label: {0}", label));
-      writer.println(String.format("  Comment: length {0}, offset {1:X6}", commentLength, commentOffset));
-      writer.println(String
-         .format("  Label comment: length {0}, offset {1:X6}", labelCommentLength, labelCommentOffset));
+      writer.println(String.format("  Prev rev offset: %06X", prevRevOffset));
+      writer.println(String.format("  #%03d %s by '%s' at %4$td.%4$tm.%4$tY %4$tH:%4$tM:%4$tS", revision, action, user,
+         dateTime));
+      writer.println(String.format("  Label: %s", label));
+      writer.println(String.format("  Comment: length %s, offset %06X", commentLength, commentOffset));
+      writer.println(String.format("  Label comment: length %s, offset %06X", labelCommentLength, labelCommentOffset));
+
+      //      writer.WriteLine("  Prev rev offset: {0:X6}", prevRevOffset);
+      //      writer.WriteLine("  #{0:D3} {1} by '{2}' at {3}",
+      //          revision, action, user, dateTime);
+      //      writer.WriteLine("  Label: {0}", label);
+      //      writer.WriteLine("  Comment: length {0}, offset {1:X6}", commentLength, commentOffset);
+      //      writer.WriteLine("  Label comment: length {0}, offset {1:X6}", labelCommentLength, labelCommentOffset);
 
    }
 

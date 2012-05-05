@@ -113,8 +113,13 @@ public class RecordHeader
 
    public void dump(PrintStream writer) throws IOException
    {
-      writer.format("Signature: %s - Length: %s - Offset: %s - CRC: %s (%s: %s)", signature, length, offset, fileCrc,
-         actualCrc, isCrcValid() ? "valid" : "INVALID");
+      writer.format("Signature: %s - Length: %s - Offset: %06X - CRC: %04X (%04X: %s)", signature, length, offset,
+         fileCrc, actualCrc, isCrcValid() ? "valid" : "INVALID");
+
+      //      writer.WriteLine(
+      //         "Signature: {0} - Length: {1} - Offset: {2:X6} - CRC: {3:X4} ({5}: {4:X4})",
+      //         signature, length, offset, fileCrc, actualCrc, IsCrcValid ? "valid" : "INVALID");
+
       writer.println();
    }
 }
