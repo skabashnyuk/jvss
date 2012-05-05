@@ -218,7 +218,7 @@ public class ItemFile extends VssRecordFile
       @Override
       public RevisionRecord createRecord(BufferReader reader, RecordHeader header)
       {
-         if (header.getSignature() != RevisionRecord.SIGNATURE)
+         if (!header.getSignature().equals(RevisionRecord.SIGNATURE))
          {
             return null;
          }
