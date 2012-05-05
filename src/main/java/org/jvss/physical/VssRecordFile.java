@@ -112,7 +112,7 @@ public class VssRecordFile
       BufferReader recordReader = reader.extract(recordHeader.getLength());
 
       // comment records always seem to have a zero CRC
-      if (recordHeader.getSignature() != CommentRecord.SIGNATURE)
+      if (!recordHeader.getSignature().equals(CommentRecord.SIGNATURE))
       {
          recordHeader.CheckCrc();
       }
