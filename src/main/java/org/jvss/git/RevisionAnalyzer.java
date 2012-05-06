@@ -62,6 +62,114 @@ public class RevisionAnalyzer
       return destroyedFiles.contains(physicalName);
    }
 
+   /**
+    * @return the excludeFiles
+    */
+   public String getExcludeFiles()
+   {
+      return excludeFiles;
+   }
+
+   /**
+    * @param excludeFiles
+    *           the excludeFiles to set
+    */
+   public void setExcludeFiles(String excludeFiles)
+   {
+      this.excludeFiles = excludeFiles;
+   }
+
+   /**
+    * @return the projectCount
+    */
+   public int getProjectCount()
+   {
+      return projectCount;
+   }
+
+   /**
+    * @param projectCount
+    *           the projectCount to set
+    */
+   public void setProjectCount(int projectCount)
+   {
+      this.projectCount = projectCount;
+   }
+
+   /**
+    * @return the fileCount
+    */
+   public int getFileCount()
+   {
+      return fileCount;
+   }
+
+   /**
+    * @param fileCount
+    *           the fileCount to set
+    */
+   public void setFileCount(int fileCount)
+   {
+      this.fileCount = fileCount;
+   }
+
+   /**
+    * @return the revisionCount
+    */
+   public int getRevisionCount()
+   {
+      return revisionCount;
+   }
+
+   /**
+    * @param revisionCount
+    *           the revisionCount to set
+    */
+   public void setRevisionCount(int revisionCount)
+   {
+      this.revisionCount = revisionCount;
+   }
+
+   /**
+    * @return the database
+    */
+   public VssDatabase getDatabase()
+   {
+      return database;
+   }
+
+   /**
+    * @return the rootProjects
+    */
+   public LinkedList<VssProject> getRootProjects()
+   {
+      return rootProjects;
+   }
+
+   /**
+    * @return the sortedRevisions
+    */
+   public Map<Date, List<Revision>> getSortedRevisions()
+   {
+      return sortedRevisions;
+   }
+
+   /**
+    * @return the processedFiles
+    */
+   public Set<String> getProcessedFiles()
+   {
+      return processedFiles;
+   }
+
+   /**
+    * @return the destroyedFiles
+    */
+   public Set<String> getDestroyedFiles()
+   {
+      return destroyedFiles;
+   }
+
    public void addItem(VssProject project)
    {
        if (project == null)

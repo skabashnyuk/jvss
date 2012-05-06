@@ -303,6 +303,14 @@ public abstract class VssAction
       }
 
       /**
+       * @return the label
+       */
+      public String getLabel()
+      {
+         return label;
+      }
+
+      /**
        * @see java.lang.Object#toString()
        */
       @Override

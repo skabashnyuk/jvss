@@ -18,29 +18,35 @@
  */
 package org.jvss.git;
 
-import java.util.Collection;
-import java.util.Date;
+import java.io.File;
 
 /**
- * Handler of git commands
+ *
  */
-public interface GitCommandHandler
+public class IoUtil
 {
-   boolean init();
+   public static boolean isExists(String path)
+   {
+      return new File(path).exists();
+   }
 
-   void setConfig(String name, String value);
+   public static void delete(String path)
+   {
+      delete(new File(path));
+   }
 
-   boolean add(String path);
-
-   boolean add(Collection<String> paths);
-
-   boolean addAll();
-
-   void remove(String path, boolean recursive);
-
-   void move(String sourcePath, String destPath);
-
-   boolean commit(String authorName, String authorEmail, String comment, Date localTime);
-
-   boolean tag(String name, String taggerName, String taggerEmail, String comment, Date localTime);
+   public static void delete(File f)
+   {
+      if (f.isDirectory())
+      {
+         for (File c : f.listFiles())
+         {
+            delete(c);
+         }
+      }
+      if (!f.delete())
+      {
+         throw new RuntimeException("Failed to delete file: " + f);
+      }
+   }
 }

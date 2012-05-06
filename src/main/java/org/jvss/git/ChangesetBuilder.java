@@ -52,6 +52,14 @@ public class ChangesetBuilder
       this.revisionAnalyzer = revisionAnalyzer;
    }
 
+   /**
+    * @return the changesets
+    */
+   public LinkedList<Changeset> getChangesets()
+   {
+      return changesets;
+   }
+
    public void buildChangesets()
    {
        workQueue.AddLast(delegate(object work)
