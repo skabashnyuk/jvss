@@ -18,8 +18,17 @@
  */
 package org.jvss.git;
 
+import org.jvss.git.VssUtil.RecursionStatus;
+import org.jvss.git.VssUtil.VssFileCallback;
+import org.jvss.git.VssUtil.VssProjectCallback;
+import org.jvss.logical.VssAction.VssActionType;
+import org.jvss.logical.VssAction.VssNamedAction;
 import org.jvss.logical.VssDatabase;
+import org.jvss.logical.VssFile;
+import org.jvss.logical.VssItem;
 import org.jvss.logical.VssProject;
+import org.jvss.logical.VssRevision;
+import org.jvss.physical.RecordException;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +43,8 @@ import java.util.TreeMap;
  */
 public class RevisionAnalyzer
 {
+   private final Logger logger;
+
    private String excludeFiles;
 
    private final VssDatabase database;
@@ -52,8 +63,9 @@ public class RevisionAnalyzer
 
    private int revisionCount;
 
-   public RevisionAnalyzer(VssDatabase database)
+   public RevisionAnalyzer(Logger logger, VssDatabase database)
    {
+      this.logger = logger;
       this.database = database;
    }
 
@@ -172,135 +184,146 @@ public class RevisionAnalyzer
 
    public void addItem(VssProject project)
    {
-       if (project == null)
-       {
-           throw new NullPointerException("project");
-       }
-       else if (project.getDatabase() != database)
-       {
-           throw new NullPointerException("Project database mismatch  project");
-       }
+      if (project == null)
+      {
+         throw new NullPointerException("project");
+      }
+      else if (project.getDatabase() != database)
+      {
+         throw new NullPointerException("Project database mismatch  project");
+      }
 
-       rootProjects.addLast(project);
+      rootProjects.addLast(project);
+      //TODO fix me
+      final PathMatcher[] exclusionMatcher = new PathMatcher[1];
+      if (excludeFiles != null && excludeFiles.length() > 0)
+      {
+         String[] excludeFileArray = excludeFiles.split(";");
+         exclusionMatcher[0] = new PathMatcher(excludeFileArray);
+      }
 
-       PathMatcher exclusionMatcher = null;
-       if (excludeFiles!=null && excludeFiles.length()>0)
-       {
-           String[] excludeFileArray = excludeFiles.split(";");
-           exclusionMatcher = new PathMatcher(excludeFileArray);
-       }
+      //       workQueue.AddLast(delegate(object work)
+      //       {
+      logger.WriteSectionSeparator();
+      //LogStatus(work, "Building revision list");
 
-//       workQueue.AddLast(delegate(object work)
-//       {
-           logger.WriteSectionSeparator();
-           LogStatus(work, "Building revision list");
+      logger.WriteLine("Root project: {0}", project.getPath());
+      logger.WriteLine("Excluded files: {0}", excludeFiles);
 
-           logger.WriteLine("Root project: {0}", project.Path);
-           logger.WriteLine("Excluded files: {0}", excludeFiles);
+      final int[] excludedProjects = new int[0];
+      final int[] excludedFiles = new int[0];
+      //var stopwatch = Stopwatch.StartNew();
+      VssUtil.recurseItems(project, new VssProjectCallback()
+      {
 
-           int excludedProjects = 0;
-           int excludedFiles = 0;
-           var stopwatch = Stopwatch.StartNew();
-           VssUtil.RecurseItems(project,
-               delegate(VssProject subproject)
-               {
-                   if (workQueue.IsAborting)
-                   {
-                       return RecursionStatus.Abort;
-                   }
+         @Override
+         public RecursionStatus call(VssProject subproject)
+         {
+            //               // TODO Auto-generated method stub
+            //               return null;
 
-                   var path = subproject.Path;
-                   if (exclusionMatcher != null && exclusionMatcher.Matches(path))
-                   {
-                       logger.WriteLine("Excluding project {0}", path);
-                       ++excludedProjects;
-                       return RecursionStatus.Skip;
-                   }
+            //                   if (workQueue.IsAborting)
+            //                   {
+            //                       return RecursionStatus.Abort;
+            //                   }
 
-                   ProcessItem(subproject, path, exclusionMatcher);
-                   ++projectCount;
-                   return RecursionStatus.Continue;
-               },
-               delegate(VssProject subproject, VssFile file)
-               {
-                   if (workQueue.IsAborting)
-                   {
-                       return RecursionStatus.Abort;
-                   }
+            String path = subproject.getPath();
+            if (exclusionMatcher[0] != null && exclusionMatcher[0].Matches(path))
+            {
+               logger.WriteLine("Excluding project {0}", path);
+               excludedProjects[0] += 1;
+               return RecursionStatus.Skip;
+            }
 
-                   var path = file.GetPath(subproject);
-                   if (exclusionMatcher != null && exclusionMatcher.Matches(path))
-                   {
-                       logger.WriteLine("Excluding file {0}", path);
-                       ++excludedFiles;
-                       return RecursionStatus.Skip;
-                   }
+            processItem(subproject, path, exclusionMatcher[0]);
+            ++projectCount;
+            return RecursionStatus.Continue;
+         }
+      }, new VssFileCallback()
+      {
 
-                   // only process shared files once (projects are never shared)
-                   if (!processedFiles.Contains(file.PhysicalName))
-                   {
-                       processedFiles.Add(file.PhysicalName);
-                       ProcessItem(file, path, exclusionMatcher);
-                       ++fileCount;
-                   }
-                   return RecursionStatus.Continue;
-               });
-           stopwatch.Stop();
+         @Override
+         public RecursionStatus call(VssProject subproject, VssFile file)
+         {
+            //            if (workQueue.IsAborting)
+            //            {
+            //               return RecursionStatus.Abort;
+            //            }
 
-           logger.WriteSectionSeparator();
-           logger.WriteLine("Analysis complete in {0:HH:mm:ss}", new DateTime(stopwatch.ElapsedTicks));
-           logger.WriteLine("Projects: {0} ({1} excluded)", projectCount, excludedProjects);
-           logger.WriteLine("Files: {0} ({1} excluded)", fileCount, excludedFiles);
-           logger.WriteLine("Revisions: {0}", revisionCount);
-     //  });
+            String path = file.GetPath(subproject);
+            if (exclusionMatcher[0] != null && exclusionMatcher[0].Matches(path))
+            {
+               logger.WriteLine("Excluding file {0}", path);
+               excludedFiles[0] += 1;
+               return RecursionStatus.Skip;
+            }
+
+            // only process shared files once (projects are never shared)
+            if (!processedFiles.contains(file.getPhysicalName()))
+            {
+               processedFiles.add(file.getPhysicalName());
+               processItem(file, path, exclusionMatcher[0]);
+               ++fileCount;
+            }
+            return RecursionStatus.Continue;
+         }
+      });
+      //stopwatch.Stop();
+
+      logger.WriteSectionSeparator();
+      logger.WriteLine("Analysis complete in {0:HH:mm:ss}", new Date());
+      logger.WriteLine("Projects: {0} ({1} excluded)", projectCount, excludedProjects);
+      logger.WriteLine("Files: {0} ({1} excluded)", fileCount, excludedFiles);
+      logger.WriteLine("Revisions: {0}", revisionCount);
+      //  });
    }
 
-   private void ProcessItem(VssItem item, string path, PathMatcher exclusionMatcher)
+   private void processItem(VssItem item, String path, PathMatcher exclusionMatcher)
    {
-       try
-       {
-           foreach (VssRevision vssRevision in item.Revisions)
-           {
-               var actionType = vssRevision.Action.Type;
-               var namedAction = vssRevision.Action as VssNamedAction;
-               if (namedAction != null)
+      try
+      {
+         for (VssRevision vssRevision : item.getRevisions())
+         {
+            VssActionType actionType = vssRevision.getAction().type();
+            VssNamedAction namedAction = (VssNamedAction)vssRevision.getAction();
+            if (namedAction != null)
+            {
+               if (actionType == VssActionType.Destroy)
                {
-                   if (actionType == VssActionType.Destroy)
-                   {
-                       // track destroyed files so missing history can be anticipated
-                       // (note that Destroy actions on shared files simply delete
-                       // that copy, so destroyed files can't be completely ignored)
-                       destroyedFiles.Add(namedAction.Name.PhysicalName);
-                   }
-
-                   var targetPath = path + VssDatabase.ProjectSeparator + namedAction.Name.LogicalName;
-                   if (exclusionMatcher != null && exclusionMatcher.Matches(targetPath))
-                   {
-                       // project action targets an excluded file
-                       continue;
-                   }
+                  // track destroyed files so missing history can be anticipated
+                  // (note that Destroy actions on shared files simply delete
+                  // that copy, so destroyed files can't be completely ignored)
+                  destroyedFiles.add(namedAction.name().getPhysicalName());
                }
 
-               Revision revision = new Revision(vssRevision.DateTime,
-                   vssRevision.User, item.ItemName, vssRevision.Version,
-                   vssRevision.Comment, vssRevision.Action);
-
-               ICollection<Revision> revisionSet;
-               if (!sortedRevisions.TryGetValue(vssRevision.DateTime, out revisionSet))
+               String targetPath = path + VssDatabase.ProjectSeparator + namedAction.name().getLogicalName();
+               if (exclusionMatcher != null && exclusionMatcher.Matches(targetPath))
                {
-                   revisionSet = new LinkedList<Revision>();
-                   sortedRevisions[vssRevision.DateTime] = revisionSet;
+                  // project action targets an excluded file
+                  continue;
                }
-               revisionSet.Add(revision);
-               ++revisionCount;
-           }
-       }
-       catch (RecordException e)
-       {
-           var message = string.Format("Failed to read revisions for {0} ({1}): {2}",
-               path, item.PhysicalName, ExceptionFormatter.Format(e));
-           LogException(e, message);
-           ReportError(message);
-       }
+            }
+
+            Revision revision =
+               new Revision(vssRevision.getDate(), vssRevision.getUser(), item.getItemName(), vssRevision.getVersion(),
+                  vssRevision.getComment(), vssRevision.getAction());
+
+            List<Revision> revisionSet = sortedRevisions.get(vssRevision.getDate());
+            if (revision == null)
+            {
+               revisionSet = new LinkedList<Revision>();
+               sortedRevisions.put(vssRevision.getDate(), revisionSet);
+            }
+            revisionSet.add(revision);
+            ++revisionCount;
+         }
+      }
+      catch (RecordException e)
+      {
+         String message =
+            String.format("Failed to read revisions for {0} ({1}): {2}", path, item.getPhysicalName(), "");
+         //LogException(e, message);
+         //ReportError(message);
+      }
    }
 }
