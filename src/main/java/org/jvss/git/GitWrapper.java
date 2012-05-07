@@ -62,9 +62,9 @@ public class GitWrapper implements GitCommandHandler
     * @see org.jvss.git.GitCommandHandler#init()
     */
    @Override
-   public void init()
+   public boolean init()
    {
-      gitExec("init");
+      return gitExec("init");
    }
 
    /**
@@ -163,7 +163,7 @@ public class GitWrapper implements GitCommandHandler
     *      java.lang.String, java.lang.String, java.lang.String, java.util.Date)
     */
    @Override
-   public void tag(String name, String taggerName, String taggerEmail, String comment, Date localTime)
+   public boolean tag(String name, String taggerName, String taggerEmail, String comment, Date localTime)
    {
 
       String[] env = new String[6];
@@ -174,7 +174,7 @@ public class GitWrapper implements GitCommandHandler
       env[4] = "GIT_COMMITTER_EMAIL=" + taggerEmail;
       env[5] = "GIT_COMMITTER_DATE=" + localTime.getTime();
 
-      gitExec("tag  -m" + Quote(comment) + " -- " + name, "nothing to commit", env);
+      return gitExec("tag  -m" + Quote(comment) + " -- " + name, "nothing to commit", env);
    }
 
    private final char QuoteChar = '"';

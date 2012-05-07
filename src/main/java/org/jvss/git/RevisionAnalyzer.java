@@ -190,8 +190,8 @@ public class RevisionAnalyzer
            exclusionMatcher = new PathMatcher(excludeFileArray);
        }
 
-       workQueue.AddLast(delegate(object work)
-       {
+//       workQueue.AddLast(delegate(object work)
+//       {
            logger.WriteSectionSeparator();
            LogStatus(work, "Building revision list");
 
@@ -252,7 +252,7 @@ public class RevisionAnalyzer
            logger.WriteLine("Projects: {0} ({1} excluded)", projectCount, excludedProjects);
            logger.WriteLine("Files: {0} ({1} excluded)", fileCount, excludedFiles);
            logger.WriteLine("Revisions: {0}", revisionCount);
-       });
+     //  });
    }
 
    private void ProcessItem(VssItem item, string path, PathMatcher exclusionMatcher)

@@ -19,12 +19,30 @@
 package org.jvss.git;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
  */
 public class IoUtil
 {
+   public static boolean move(String source, String destination)
+   {
+      // File (or directory) to be moved
+      File file = new File(source);
+
+      // Destination directory
+      File dir = new File(destination);
+
+      // Move file to new directory
+      return file.renameTo(new File(dir, file.getName()));
+
+   }
+
    public static boolean isExists(String path)
    {
       return new File(path).exists();
@@ -33,6 +51,38 @@ public class IoUtil
    public static void delete(String path)
    {
       delete(new File(path));
+   }
+
+   public static void writeStream(InputStream inputStream, String path)
+   {
+
+      // write the inputStream to a FileOutputStream
+      try
+      {
+         OutputStream out = new FileOutputStream(new File(path));
+
+         int read = 0;
+         byte[] bytes = new byte[1024];
+
+         while ((read = inputStream.read(bytes)) != -1)
+         {
+            out.write(bytes, 0, read);
+         }
+
+         inputStream.close();
+         out.flush();
+         out.close();
+      }
+      catch (FileNotFoundException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
    }
 
    public static void delete(File f)
