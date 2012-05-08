@@ -73,10 +73,10 @@ public class GitExporter
 
    private final GitCommandHandler git;
 
-   public GitExporter(RevisionAnalyzer revisionAnalyzer, ChangesetBuilder changesetBuilder, GitCommandHandler git)
+   public GitExporter(Logger logger, RevisionAnalyzer revisionAnalyzer, ChangesetBuilder changesetBuilder, GitCommandHandler git)
    {
       this.git = git;
-      this.logger = new Logger();
+      this.logger = logger;
       this.database = revisionAnalyzer.getDatabase();
       this.revisionAnalyzer = revisionAnalyzer;
       this.changesetBuilder = changesetBuilder;

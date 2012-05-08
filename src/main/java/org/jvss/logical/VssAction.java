@@ -48,7 +48,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Add {0}", name);
+         return String.format("Add %s", name);
       }
 
       /**

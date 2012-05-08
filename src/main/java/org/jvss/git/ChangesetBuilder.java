@@ -121,11 +121,15 @@ public class ChangesetBuilder
          {
             // determine target of project revisions
             VssActionType actionType = revision.getAction().type();
-            VssNamedAction namedAction = (VssNamedAction)revision.getAction();
+
             String targetFile = revision.getItem().getPhysicalName();
-            if (namedAction != null)
+            if (revision.getAction() instanceof VssNamedAction)
             {
-               targetFile = namedAction.name().getPhysicalName();
+               VssNamedAction namedAction = (VssNamedAction)revision.getAction();
+               if (namedAction != null)
+               {
+                  targetFile = namedAction.name().getPhysicalName();
+               }
             }
 
             // Create actions are only used to obtain initial item comments;
@@ -189,7 +193,7 @@ public class ChangesetBuilder
                   }
                   flushedUsers.addLast(user);
                }
-               else if (user == pendingUser)
+               else if (user.equals(pendingUser))
                {
                   pendingChange = change;
                }

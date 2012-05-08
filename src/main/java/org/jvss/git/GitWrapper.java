@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
@@ -40,6 +42,8 @@ public class GitWrapper implements GitCommandHandler
    private final boolean shellQuoting;
 
    private final String commitEncoding;
+
+   private final DateFormat gitDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
 
    /**
     * @param gitExecutable
@@ -148,10 +152,10 @@ public class GitWrapper implements GitCommandHandler
       String[] env = new String[6];
       env[0] = "GIT_AUTHOR_NAME=" + authorName;
       env[1] = "GIT_AUTHOR_EMAIL=" + authorEmail;
-      env[2] = "GIT_AUTHOR_DATE=" + localTime.getTime();
+      env[2] = "GIT_AUTHOR_DATE=" + gitDate.format(localTime);//localTime.getTime();
       env[3] = "GIT_COMMITTER_NAME=" + authorName;
       env[4] = "GIT_COMMITTER_EMAIL=" + authorEmail;
-      env[5] = "GIT_COMMITTER_DATE=" + localTime.getTime();
+      env[5] = "GIT_COMMITTER_DATE=" + gitDate.format(localTime);
 
       // ignore empty commits, since they are non-trivial to detect
       // (e.g. when renaming a directory)

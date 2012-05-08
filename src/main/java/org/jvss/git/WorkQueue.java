@@ -31,161 +31,161 @@ import java.util.Map;
  */
 public class WorkQueue extends SimpleWorkQueue
 {
-   //private final static ManualResetEvent idleEvent = new ManualResetEvent(true);
-   //88private final static Stopwatch stopwatch = new Stopwatch();
-   private final static LinkedList<Exception> workExceptions = new LinkedList<Exception>();
-   private final static Map<Object, String> workStatuses = new HashMap<Object, String>();
-   private Object lastStatusWork;
-   private String lastStatus;
-
-   public String getLastStatus()
-   {
-       return lastStatus; 
-   }
-
-   public WorkQueue()
-   {
-   }
-
-   public WorkQueue(int maxThreads)
-       
-   {
-      super(maxThreads);
-   }
+//   //private final static ManualResetEvent idleEvent = new ManualResetEvent(true);
+//   //88private final static Stopwatch stopwatch = new Stopwatch();
+//   private final static LinkedList<Exception> workExceptions = new LinkedList<Exception>();
+//   private final static Map<Object, String> workStatuses = new HashMap<Object, String>();
+//   private Object lastStatusWork;
+//   private String lastStatus;
 //
-//   public TimeSpan ActiveTime
+//   public String getLastStatus()
 //   {
-//       get { return stopwatch.Elapsed; }
+//       return lastStatus;
 //   }
 //
-//   public WaitHandle IdleEvent
+//   public WorkQueue()
 //   {
-//       get { return idleEvent; }
 //   }
 //
-//   public event EventHandler Idle;
+//   public WorkQueue(int maxThreads)
 //
-//   public void WaitIdle()
 //   {
-//       idleEvent.WaitOne();
+//      super(maxThreads);
 //   }
-
-   public Collection<Exception> fetchExceptions()
-   {
-       synchronized (workExceptions)
-       {
-           if (workExceptions.size() > 0)
-           {
-               List<Exception> result = new ArrayList<Exception>(workExceptions);
-               workExceptions.clear();
-               return result;
-           }
-       }
-       return null;
-   }
-
-   public String getStatus(Object work)
-   {
-       String result;
-       synchronized (workStatuses)
-       {
-           workStatuses.TryGetValue(work, out result);
-       }
-       return result;
-   }
-
-   public void SetStatus(object work, string status)
-   {
-       lock (workStatuses)
-       {
-           // only allow status to be set if key is already present,
-           // so we know that it will be removed in OnStop
-           if (workStatuses.ContainsKey(work))
-           {
-               workStatuses[work] = status;
-               if (string.IsNullOrEmpty(status))
-               {
-                   WorkStatusCleared(work);
-               }
-               else
-               {
-                   lastStatusWork = work;
-                   lastStatus = status;
-               }
-           }
-       }
-   }
-
-   public void ClearStatus(object work)
-   {
-       SetStatus(work, null);
-   }
-
-   protected override void OnActive()
-   {
-       base.OnActive();
-       idleEvent.Reset();
-       stopwatch.Start();
-   }
-
-   protected override void OnIdle()
-   {
-       base.OnIdle();
-       stopwatch.Stop();
-       idleEvent.Set();
-
-       var handler = Idle;
-       if (handler != null)
-       {
-           handler(this, EventArgs.Empty);
-       }
-   }
-
-   protected override void OnStart(WaitCallback work)
-   {
-       base.OnStart(work);
-       lock (workStatuses)
-       {
-           workStatuses[work] = null;
-       }
-   }
-
-   protected override void OnStop(WaitCallback work)
-   {
-       base.OnStop(work);
-       lock (workStatuses)
-       {
-           workStatuses.Remove(work);
-           WorkStatusCleared(work);
-       }
-   }
-
-   protected override void OnException(WaitCallback work, Exception e)
-   {
-       base.OnException(work, e);
-       lock (workExceptions)
-       {
-           workExceptions.AddLast(e);
-       }
-   }
-
-   // Assumes work status lock is held.
-   private void WorkStatusCleared(object work)
-   {
-       if (work == lastStatusWork)
-       {
-           lastStatusWork = null;
-           lastStatus = null;
-
-           foreach (var entry in workStatuses)
-           {
-               if (!string.IsNullOrEmpty(entry.Value))
-               {
-                   lastStatusWork = entry.Key;
-                   lastStatus = entry.Value;
-                   break;
-               }
-           }
-       }
-   }
+////
+////   public TimeSpan ActiveTime
+////   {
+////       get { return stopwatch.Elapsed; }
+////   }
+////
+////   public WaitHandle IdleEvent
+////   {
+////       get { return idleEvent; }
+////   }
+////
+////   public event EventHandler Idle;
+////
+////   public void WaitIdle()
+////   {
+////       idleEvent.WaitOne();
+////   }
+//
+//   public Collection<Exception> fetchExceptions()
+//   {
+//       synchronized (workExceptions)
+//       {
+//           if (workExceptions.size() > 0)
+//           {
+//               List<Exception> result = new ArrayList<Exception>(workExceptions);
+//               workExceptions.clear();
+//               return result;
+//           }
+//       }
+//       return null;
+//   }
+//
+//   public String getStatus(Object work)
+//   {
+//       String result;
+//       synchronized (workStatuses)
+//       {
+//           workStatuses.TryGetValue(work, out result);
+//       }
+//       return result;
+//   }
+//
+//   public void SetStatus(object work, string status)
+//   {
+//       lock (workStatuses)
+//       {
+//           // only allow status to be set if key is already present,
+//           // so we know that it will be removed in OnStop
+//           if (workStatuses.ContainsKey(work))
+//           {
+//               workStatuses[work] = status;
+//               if (string.IsNullOrEmpty(status))
+//               {
+//                   WorkStatusCleared(work);
+//               }
+//               else
+//               {
+//                   lastStatusWork = work;
+//                   lastStatus = status;
+//               }
+//           }
+//       }
+//   }
+//
+//   public void ClearStatus(object work)
+//   {
+//       SetStatus(work, null);
+//   }
+//
+//   protected override void OnActive()
+//   {
+//       base.OnActive();
+//       idleEvent.Reset();
+//       stopwatch.Start();
+//   }
+//
+//   protected override void OnIdle()
+//   {
+//       base.OnIdle();
+//       stopwatch.Stop();
+//       idleEvent.Set();
+//
+//       var handler = Idle;
+//       if (handler != null)
+//       {
+//           handler(this, EventArgs.Empty);
+//       }
+//   }
+//
+//   protected override void OnStart(WaitCallback work)
+//   {
+//       base.OnStart(work);
+//       lock (workStatuses)
+//       {
+//           workStatuses[work] = null;
+//       }
+//   }
+//
+//   protected override void OnStop(WaitCallback work)
+//   {
+//       base.OnStop(work);
+//       lock (workStatuses)
+//       {
+//           workStatuses.Remove(work);
+//           WorkStatusCleared(work);
+//       }
+//   }
+//
+//   protected override void OnException(WaitCallback work, Exception e)
+//   {
+//       base.OnException(work, e);
+//       lock (workExceptions)
+//       {
+//           workExceptions.AddLast(e);
+//       }
+//   }
+//
+//   // Assumes work status lock is held.
+//   private void WorkStatusCleared(object work)
+//   {
+//       if (work == lastStatusWork)
+//       {
+//           lastStatusWork = null;
+//           lastStatus = null;
+//
+//           foreach (var entry in workStatuses)
+//           {
+//               if (!string.IsNullOrEmpty(entry.Value))
+//               {
+//                   lastStatusWork = entry.Key;
+//                   lastStatus = entry.Value;
+//                   break;
+//               }
+//           }
+//       }
+//   }
 }

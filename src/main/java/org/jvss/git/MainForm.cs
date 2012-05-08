@@ -70,7 +70,7 @@ namespace Hpdi.Vss2Git
                 df.Encoding = encoding;
                 var db = df.Open();
 
-                var path = vssProjectTextBox.Text;
+                String path = "$";//vssProjectTextBox.Text;
                 VssItem item;
                 try
                 {

@@ -263,7 +263,7 @@ public class VssPathMapper
                   return true;
                }
             }
-            if (subprojects.getFirst() != null)
+            if (subprojects.size() != 0)
             {
                //TODO can be done in one remove
                project = subprojects.getFirst();
@@ -297,7 +297,7 @@ public class VssPathMapper
                   result.add((VssFileInfo)item);
                }
             }
-            if (subprojects.getFirst() != null)
+            if (subprojects.size() != 0)
             {
                //TODO can be done in one remove
                project = subprojects.getFirst();
@@ -326,7 +326,8 @@ public class VssPathMapper
                   result.add(subproject);
                }
             }
-            if (subprojects.getFirst() != null)
+            //if (subprojects.getFirst() != null)
+            if (subprojects.size() != 0)
             {
                project = subprojects.getFirst();
                subprojects.remove();
@@ -727,7 +728,7 @@ public class VssPathMapper
 
    public static String getWorkingPath(String workingRoot, String vssPath)
    {
-      if (vssPath == "$")
+      if (vssPath.equals("$"))
       {
          return workingRoot;
       }

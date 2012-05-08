@@ -284,10 +284,22 @@ public class RevisionAnalyzer
       {
          for (VssRevision vssRevision : item.getRevisions())
          {
+
+            //logger.WriteLine("ProcessItem<<<");
+            //logger.WriteLine(vssRevision.getAction());
+            //logger.WriteLine(vssRevision.getAction());
+            //logger.WriteLine("ProcessItem>>>>" + vssRevision);
             VssActionType actionType = vssRevision.getAction().type();
-            VssNamedAction namedAction = (VssNamedAction)vssRevision.getAction();
-            if (namedAction != null)
+            //            if (!(vssRevision.getAction() instanceof VssNamedAction))
+            //            {
+            //               System.err.println("not an instance of VssNamedAction");
+            //               continue;
+            //            }
+
+            //if (namedAction != null)
+            if (vssRevision.getAction() instanceof VssNamedAction)
             {
+               VssNamedAction namedAction = (VssNamedAction)vssRevision.getAction();
                if (actionType == VssActionType.Destroy)
                {
                   // track destroyed files so missing history can be anticipated
@@ -309,7 +321,7 @@ public class RevisionAnalyzer
                   vssRevision.getComment(), vssRevision.getAction());
 
             List<Revision> revisionSet = sortedRevisions.get(vssRevision.getDate());
-            if (revision == null)
+            if (revisionSet == null)
             {
                revisionSet = new LinkedList<Revision>();
                sortedRevisions.put(vssRevision.getDate(), revisionSet);
