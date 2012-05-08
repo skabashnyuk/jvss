@@ -18,8 +18,15 @@
  */
 package org.jvss.git;
 
+import org.jvss.logical.VssAction.VssActionType;
+import org.jvss.logical.VssAction.VssNamedAction;
+
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Reconstructs changesets from independent revisions.
@@ -29,6 +36,44 @@ public class ChangesetBuilder
    private final RevisionAnalyzer revisionAnalyzer;
 
    private final LinkedList<Changeset> changesets = new LinkedList<Changeset>();
+
+   private long anyCommentThreshold;
+
+   private long sameCommentThreshold;
+
+   /**
+    * @return the anyCommentThreshold
+    */
+   public long getAnyCommentThreshold()
+   {
+      return anyCommentThreshold;
+   }
+
+   /**
+    * @return the sameCommentThreshold
+    */
+   public long getSameCommentThreshold()
+   {
+      return sameCommentThreshold;
+   }
+
+   /**
+    * @param sameCommentThreshold
+    *           the sameCommentThreshold to set
+    */
+   public void setSameCommentThreshold(long sameCommentThreshold)
+   {
+      this.sameCommentThreshold = sameCommentThreshold;
+   }
+
+   /**
+    * @param anyCommentThreshold
+    *           the anyCommentThreshold to set
+    */
+   public void setAnyCommentThreshold(long anyCommentThreshold)
+   {
+      this.anyCommentThreshold = anyCommentThreshold;
+   }
 
    //   
    //   private TimeSpan anyCommentThreshold = TimeSpan.FromSeconds(30);
@@ -62,151 +107,152 @@ public class ChangesetBuilder
 
    public void buildChangesets()
    {
-       workQueue.AddLast(delegate(object work)
-       {
-           logger.WriteSectionSeparator();
-           LogStatus(work, "Building changesets");
+      //       workQueue.AddLast(delegate(object work)
+      //       {
+      //           logger.WriteSectionSeparator();
+      //           LogStatus(work, "Building changesets");
 
-           var stopwatch = Stopwatch.StartNew();
-           var pendingChangesByUser = new Dictionary<string, Changeset>();
-           foreach (var dateEntry in revisionAnalyzer.SortedRevisions)
-           {
-               var dateTime = dateEntry.Key;
-               foreach (Revision revision in dateEntry.Value)
+      //           var stopwatch = Stopwatch.StartNew();
+      Map<String, Changeset> pendingChangesByUser = new HashMap<String, Changeset>();
+      for (Map.Entry<Date, List<Revision>> dateEntry : revisionAnalyzer.getSortedRevisions().entrySet())
+      {
+         Date dateTime = dateEntry.getKey();
+         for (Revision revision : dateEntry.getValue())
+         {
+            // determine target of project revisions
+            VssActionType actionType = revision.getAction().type();
+            VssNamedAction namedAction = (VssNamedAction)revision.getAction();
+            String targetFile = revision.getItem().getPhysicalName();
+            if (namedAction != null)
+            {
+               targetFile = namedAction.name().getPhysicalName();
+            }
+
+            // Create actions are only used to obtain initial item comments;
+            // items are actually created when added to a project
+            boolean creating =
+               actionType == VssActionType.Create || actionType == VssActionType.Branch
+                  && !revision.getItem().isProject();
+
+            // Share actions are never conflict (which is important,
+            // since Share always precedes Branch)
+            boolean nonconflicting = creating || actionType == VssActionType.Share;
+
+            // look up the pending change for user of this revision
+            // and flush changes past time threshold
+            String pendingUser = revision.getUser();
+            Changeset pendingChange = null;
+            LinkedList<String> flushedUsers = null;
+            for (Entry<String, Changeset> userEntry : pendingChangesByUser.entrySet())
+            {
+               String user = userEntry.getKey();
+               Changeset change = userEntry.getValue();
+
+               // flush change if file conflict or past time threshold
+               boolean flush = false;
+               long timeDiff = revision.getDateTime().getTime() - change.getDateTime().getTime();
+               if (timeDiff > anyCommentThreshold)
                {
-                   // determine target of project revisions
-                   var actionType = revision.Action.Type;
-                   var namedAction = revision.Action as VssNamedAction;
-                   var targetFile = revision.Item.PhysicalName;
-                   if (namedAction != null)
-                   {
-                       targetFile = namedAction.Name.PhysicalName;
-                   }
-
-                   // Create actions are only used to obtain initial item comments;
-                   // items are actually created when added to a project
-                   var creating = actionType == VssActionType.Create ||
-                       actionType == VssActionType.Branch && !revision.Item.IsProject;
-
-                   // Share actions are never conflict (which is important,
-                   // since Share always precedes Branch)
-                   var nonconflicting = creating || actionType == VssActionType.Share;
-
-                   // look up the pending change for user of this revision
-                   // and flush changes past time threshold
-                   var pendingUser = revision.User;
-                   Changeset pendingChange = null;
-                   LinkedList<string> flushedUsers = null;
-                   foreach (var userEntry in pendingChangesByUser)
-                   {
-                       var user = userEntry.Key;
-                       var change = userEntry.Value;
-
-                       // flush change if file conflict or past time threshold
-                       var flush = false;
-                       var timeDiff = revision.DateTime - change.DateTime;
-                       if (timeDiff > anyCommentThreshold)
-                       {
-                           if (HasSameComment(revision, change.Revisions.Last.Value))
-                           {
-                               string message;
-                               if (timeDiff < sameCommentThreshold)
-                               {
-                                   message = "Using same-comment threshold";
-                               }
-                               else
-                               {
-                                   message = "Same comment but exceeded threshold";
-                                   flush = true;
-                               }
-                               logger.WriteLine("NOTE: {0} ({1} second gap):",
-                                   message, timeDiff.TotalSeconds);
-                           }
-                           else
-                           {
-                               flush = true;
-                           }
-                       }
-                       else if (!nonconflicting && change.TargetFiles.Contains(targetFile))
-                       {
-                           logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0}:",
-                               targetFile);
-                           flush = true;
-                       }
-
-                       if (flush)
-                       {
-                           AddChangeset(change);
-                           if (flushedUsers == null)
-                           {
-                               flushedUsers = new LinkedList<string>();
-                           }
-                           flushedUsers.AddLast(user);
-                       }
-                       else if (user == pendingUser)
-                       {
-                           pendingChange = change;
-                       }
-                   }
-                   if (flushedUsers != null)
-                   {
-                       foreach (string user in flushedUsers)
-                       {
-                           pendingChangesByUser.Remove(user);
-                       }
-                   }
-
-                   // if no pending change for user, create a new one
-                   if (pendingChange == null)
-                   {
-                       pendingChange = new Changeset();
-                       pendingChange.User = pendingUser;
-                       pendingChangesByUser[pendingUser] = pendingChange;
-                   }
-
-                   // update the time of the change based on the last revision
-                   pendingChange.DateTime = revision.DateTime;
-
-                   // add the revision to the change
-                   pendingChange.Revisions.AddLast(revision);
-
-                   // track target files in changeset to detect conflicting actions
-                   if (!nonconflicting)
-                   {
-                       pendingChange.TargetFiles.Add(targetFile);
-                   }
-
-                   // build up a concatenation of unique revision comments
-                   var revComment = revision.Comment;
-                   if (revComment != null)
-                   {
-                       revComment = revComment.Trim();
-                       if (revComment.Length > 0)
-                       {
-                           if (string.IsNullOrEmpty(pendingChange.Comment))
-                           {
-                               pendingChange.Comment = revComment;
-                           }
-                           else if (!pendingChange.Comment.Contains(revComment))
-                           {
-                               pendingChange.Comment += "\n" + revComment;
-                           }
-                       }
-                   }
+                  if (hasSameComment(revision, change.getRevisions().getLast()))
+                  {
+                     String message;
+                     if (timeDiff < sameCommentThreshold)
+                     {
+                        message = "Using same-comment threshold";
+                     }
+                     else
+                     {
+                        message = "Same comment but exceeded threshold";
+                        flush = true;
+                     }
+                     //                               logger.WriteLine("NOTE: {0} ({1} second gap):",
+                     //                                   message, timeDiff.TotalSeconds);
+                  }
+                  else
+                  {
+                     flush = true;
+                  }
                }
-           }
+               else if (!nonconflicting && change.getTargetFiles().contains(targetFile))
+               {
+                  //                           logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0}:",
+                  //                               targetFile);
+                  flush = true;
+               }
 
-           // flush all remaining changes
-           foreach (var change in pendingChangesByUser.Values)
-           {
-               AddChangeset(change);
-           }
-           stopwatch.Stop();
+               if (flush)
+               {
+                  addChangeset(change);
+                  if (flushedUsers == null)
+                  {
+                     flushedUsers = new LinkedList<String>();
+                  }
+                  flushedUsers.addLast(user);
+               }
+               else if (user == pendingUser)
+               {
+                  pendingChange = change;
+               }
+            }
+            if (flushedUsers != null)
+            {
+               for (String user : flushedUsers)
+               {
+                  pendingChangesByUser.remove(user);
+               }
+            }
 
-           logger.WriteSectionSeparator();
-           logger.WriteLine("Found {0} changesets in {1:HH:mm:ss}",
-               changesets.Count, new DateTime(stopwatch.ElapsedTicks));
-       });
+            // if no pending change for user, create a new one
+            if (pendingChange == null)
+            {
+               pendingChange = new Changeset();
+               pendingChange.setUser(pendingUser);
+               pendingChangesByUser.put(pendingUser, pendingChange);
+            }
+
+            // update the time of the change based on the last revision
+            pendingChange.setDateTime(revision.getDateTime());
+
+            // add the revision to the change
+            pendingChange.getRevisions().addLast(revision);
+
+            // track target files in changeset to detect conflicting actions
+            if (!nonconflicting)
+            {
+               pendingChange.getTargetFiles().add(targetFile);
+            }
+
+            // build up a concatenation of unique revision comments
+            String revComment = revision.getComment();
+            if (revComment != null)
+            {
+               revComment = revComment.trim();
+               if (revComment.length() > 0)
+               {
+                  if (pendingChange.getComment() == null || pendingChange.getComment().length() == 0)
+                  {
+                     pendingChange.setComment(revComment);
+                  }
+                  else if (!pendingChange.getComment().contains(revComment))
+                  {
+                     pendingChange.setComment(pendingChange.getComment() + "\n" + revComment);
+                  }
+               }
+            }
+         }
+      }
+
+      // flush all remaining changes
+      for (Changeset change : pendingChangesByUser.values())
+      {
+         addChangeset(change);
+      }
+      //stopwatch.Stop();
+
+      //           logger.WriteSectionSeparator();
+      //           logger.WriteLine("Found {0} changesets in {1:HH:mm:ss}",
+      //               changesets.Count, new DateTime(stopwatch.ElapsedTicks));
+      //});
    }
 
    private boolean hasSameComment(Revision rev1, Revision rev2)

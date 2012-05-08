@@ -21,7 +21,6 @@ package org.jvss.git;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +35,7 @@ public class Changeset
 
    private String comment;
 
-   private final List<Revision> revisions = new LinkedList<Revision>();
+   private final LinkedList<Revision> revisions = new LinkedList<Revision>();
 
    private final Set<String> targetFiles = new HashSet<String>();
 
@@ -94,7 +93,7 @@ public class Changeset
    /**
     * @return the revisions
     */
-   public List<Revision> getRevisions()
+   public LinkedList<Revision> getRevisions()
    {
       return revisions;
    }
