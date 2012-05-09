@@ -253,9 +253,10 @@ public class VssPathMapper
          {
             for (VssItemInfo item : project.items)
             {
-               VssProjectInfo subproject = (VssProjectInfo)item;
-               if (subproject != null)
+
+               if (item instanceof VssProjectInfo)
                {
+                  VssProjectInfo subproject = (VssProjectInfo)item;
                   subprojects.addLast(subproject);
                }
                else
