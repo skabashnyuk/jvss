@@ -173,12 +173,12 @@ public class GitWrapper implements GitCommandHandler
       String[] env = new String[6];
       env[0] = "GIT_AUTHOR_NAME=" + taggerName;
       env[1] = "GIT_AUTHOR_EMAIL=" + taggerEmail;
-      env[2] = "GIT_AUTHOR_DATE=" + localTime.getTime();
+      env[2] = "GIT_AUTHOR_DATE=" + gitDate.format(localTime);
       env[3] = "GIT_COMMITTER_NAME=" + taggerName;
       env[4] = "GIT_COMMITTER_EMAIL=" + taggerEmail;
-      env[5] = "GIT_COMMITTER_DATE=" + localTime.getTime();
+      env[5] = "GIT_COMMITTER_DATE=" + gitDate.format(localTime);
 
-      return gitExec("tag  -m" + Quote(comment) + " -- " + name, "nothing to commit", env);
+      return gitExec("tag -a " + name.replace(' ', '_') + " -m " + "'msg'", "nothing to commit", env);
    }
 
    private final char QuoteChar = '"';
