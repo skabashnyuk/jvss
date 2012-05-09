@@ -42,7 +42,7 @@ public class VssFileRevision extends VssRevision
 
    public InputStream getContents() throws IOException
    {
-      InputStream dataFile = new FileInputStream(item.getDataPath());
+      InputStream dataFile = new FileInputStream(item.getDataPath().toLowerCase());
 
       ItemFile itemFile = item.getItemFile();
       RevisionRecord lastRev = itemFile.GetLastRevision();
@@ -51,9 +51,10 @@ public class VssFileRevision extends VssRevision
          List<DeltaOperation> deltaOps = null;
          while (lastRev != null && lastRev.getRevision() > this.getVersion())
          {
-            BranchRevisionRecord branchRev = (BranchRevisionRecord)lastRev;
-            if (branchRev != null)
+
+            if (lastRev instanceof BranchRevisionRecord)
             {
+               BranchRevisionRecord branchRev = (BranchRevisionRecord)lastRev;
                int branchRevId = branchRev.getRevision();
                String itemPath = item.getDatabase().GetDataPath(branchRev.getBranchFile());
                itemFile = new ItemFile(itemPath, item.getDatabase().getEncoding());
@@ -65,9 +66,10 @@ public class VssFileRevision extends VssRevision
             }
             else
             {
-               EditRevisionRecord editRev = (EditRevisionRecord)lastRev;
-               if (editRev != null)
+
+               if (lastRev instanceof EditRevisionRecord)
                {
+                  EditRevisionRecord editRev = (EditRevisionRecord)lastRev;
                   DeltaRecord delta = itemFile.getPreviousDelta(editRev);
                   if (delta != null)
                   {
