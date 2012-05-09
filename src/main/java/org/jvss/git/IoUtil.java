@@ -64,7 +64,7 @@ public class IoUtil
          int read = 0;
          byte[] bytes = new byte[1024];
 
-         while ((read = inputStream.read(bytes)) != -1)
+         while ((read = inputStream.read(bytes)) > 0)
          {
             out.write(bytes, 0, read);
          }
@@ -87,16 +87,19 @@ public class IoUtil
 
    public static void delete(File f)
    {
-      if (f.isDirectory())
+      if (f.exists())
       {
-         for (File c : f.listFiles())
+         if (f.isDirectory())
          {
-            delete(c);
+            for (File c : f.listFiles())
+            {
+               delete(c);
+            }
          }
-      }
-      if (!f.delete())
-      {
-         throw new RuntimeException("Failed to delete file: " + f);
+         if (!f.delete())
+         {
+            throw new RuntimeException("Failed to delete file: " + f);
+         }
       }
    }
 }
