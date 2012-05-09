@@ -41,6 +41,8 @@ public class ChangesetBuilder
 
    private long sameCommentThreshold;
 
+   private final Logger logger;
+
    /**
     * @return the anyCommentThreshold
     */
@@ -91,10 +93,11 @@ public class ChangesetBuilder
    //       set { sameCommentThreshold = value; }
    //   }
    //WorkQueue workQueue, Logger logger, 
-   public ChangesetBuilder(RevisionAnalyzer revisionAnalyzer)
+   public ChangesetBuilder(RevisionAnalyzer revisionAnalyzer, Logger logger)
 
    {
       this.revisionAnalyzer = revisionAnalyzer;
+      this.logger = logger;
    }
 
    /**
@@ -109,10 +112,10 @@ public class ChangesetBuilder
    {
       //       workQueue.AddLast(delegate(object work)
       //       {
-      //           logger.WriteSectionSeparator();
-      //           LogStatus(work, "Building changesets");
+      logger.WriteSectionSeparator();
+      logger.WriteLine("Building changesets");
 
-      //           var stopwatch = Stopwatch.StartNew();
+      long stopwatch = System.currentTimeMillis();
       Map<String, Changeset> pendingChangesByUser = new HashMap<String, Changeset>();
       for (Map.Entry<Date, List<Revision>> dateEntry : revisionAnalyzer.getSortedRevisions().entrySet())
       {
@@ -169,8 +172,7 @@ public class ChangesetBuilder
                         message = "Same comment but exceeded threshold";
                         flush = true;
                      }
-                     //                               logger.WriteLine("NOTE: {0} ({1} second gap):",
-                     //                                   message, timeDiff.TotalSeconds);
+                     logger.WriteLine(String.format("NOTE: %s (%d second gap):", message, timeDiff / 1000));
                   }
                   else
                   {
@@ -179,8 +181,7 @@ public class ChangesetBuilder
                }
                else if (!nonconflicting && change.getTargetFiles().contains(targetFile))
                {
-                  //                           logger.WriteLine("NOTE: Splitting changeset due to file conflict on {0}:",
-                  //                               targetFile);
+                  logger.WriteLine(String.format("NOTE: Splitting changeset due to file conflict on %s:", targetFile));
                   flush = true;
                }
 
@@ -253,9 +254,9 @@ public class ChangesetBuilder
       }
       //stopwatch.Stop();
 
-      //           logger.WriteSectionSeparator();
-      //           logger.WriteLine("Found {0} changesets in {1:HH:mm:ss}",
-      //               changesets.Count, new DateTime(stopwatch.ElapsedTicks));
+      logger.WriteSectionSeparator();
+      logger.WriteLine(String.format("Found %d changesets in %d msec", changesets.size(), System.currentTimeMillis()
+         - stopwatch));
       //});
    }
 
@@ -276,19 +277,18 @@ public class ChangesetBuilder
    {
       Date firstRevTime = changeset.getRevisions().get(0).getDateTime();
       long changeDuration = changeset.getDateTime().getTime() - firstRevTime.getTime();
-      //       logger.WriteSectionSeparator();
-      //       logger.WriteLine("Changeset {0} - {1} ({2} secs) {3} {4} files",
-      //           changesetId, changeset.DateTime, changeDuration.TotalSeconds, changeset.User,
-      //           changeset.Revisions.Count);
-      //       if (!string.IsNullOrEmpty(changeset.Comment))
-      //       {
-      //           logger.WriteLine(changeset.Comment);
-      //       }
-      //       logger.WriteLine();
-      //       foreach (var revision in changeset.Revisions)
-      //       {
-      //           logger.WriteLine("  {0} {1}@{2} {3}",
-      //               revision.DateTime, revision.Item, revision.Version, revision.Action);
-      //       }
+      logger.WriteSectionSeparator();
+      logger.WriteLine(String.format("Changeset %d - %tF (%d msecs) %s %d files", changesetId, changeset.getDateTime(),
+         changeDuration, changeset.getUser(), changeset.getRevisions().size()));
+      if (changeset.getComment() != null && changeset.getComment().length() > 0)
+      {
+         logger.WriteLine(changeset.getComment());
+      }
+      logger.WriteLine();
+      for (Revision revision : changeset.getRevisions())
+      {
+         logger.WriteLine(String.format("  %1$tm/%1$te/%1$tY  %1$tH:%1$tM:%1$tS   %2$s @ %3$s %4$s",
+            revision.getDateTime(), revision.getItem(), revision.getVersion(), revision.getAction()));
+      }
    }
 }
