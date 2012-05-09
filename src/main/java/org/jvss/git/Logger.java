@@ -30,6 +30,25 @@ public class Logger
 
    private final static String sectionSeparator = "------------------------------------------------------------";
 
+   private boolean disableOutput = false;
+
+   /**
+    * @return the disableOutput
+    */
+   public boolean isDisableOutput()
+   {
+      return disableOutput;
+   }
+
+   /**
+    * @param disableOutput
+    *           the disableOutput to set
+    */
+   public void setDisableOutput(boolean disableOutput)
+   {
+      this.disableOutput = disableOutput;
+   }
+
    public void Write(boolean value)
    {
       Write(Boolean.toString(value));
@@ -165,13 +184,19 @@ public class Logger
    {
       //var bytes = encoding.GetBytes(value);
       //baseStream.Write(bytes, 0, bytes.Length);
-      System.out.print(value);
+      if (!disableOutput)
+      {
+         System.out.print(value);
+      }
    }
 
    private void WriteInternal(char[] buffer, int index, int count)
    {
       //var bytes = encoding.GetBytes(buffer, index, count);
       //baseStream.Write(bytes, 0, bytes.Length);
-      System.out.print(new String(buffer, index, count));
+      if (!disableOutput)
+      {
+         System.out.print(new String(buffer, index, count));
+      }
    }
 }
