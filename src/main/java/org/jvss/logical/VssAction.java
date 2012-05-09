@@ -89,7 +89,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Archive {0} to {1}", name, archivePath);
+         return String.format("Archive %s to %s", name, archivePath);
       }
 
       /**
@@ -130,7 +130,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Branch {0} from {1}", name, source.getPhysicalName());
+         return String.format("Branch %s from %s", name, source.getPhysicalName());
       }
 
       /**
@@ -164,7 +164,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Create {0}", name);
+         return String.format("Create %s", name);
       }
 
       /**
@@ -198,7 +198,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Delete {0}", name);
+         return String.format("Delete %s", name);
       }
 
       /**
@@ -232,7 +232,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Destroy {0}", name);
+         return String.format("Destroy %s", name);
       }
 
       /**
@@ -358,7 +358,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Move {0} from {1}", name, originalProject);
+         return String.format("Move %s from %s", name, originalProject);
       }
 
       /**
@@ -399,7 +399,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Move {0} to {1}", name, newProject);
+         return String.format("Move %s to %s", name, newProject);
       }
 
       /**
@@ -470,7 +470,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("{0} {1} at revision {2}", pinned ? "Pin " : "Unpin ", name, revision);
+         return String.format("%s %s at revision {2}", pinned ? "Pin " : "Unpin ", name, revision);
       }
 
       /**
@@ -503,7 +503,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Recover {0}", name);
+         return String.format("Recover %s", name);
       }
 
       /**
@@ -548,7 +548,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Rename {0} to {1}", originalName, name);
+         return String.format("Rename %s to %s", originalName, name);
       }
 
       /**
@@ -589,7 +589,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Restore {0} from archive {1}", name, archivePath);
+         return String.format("Restore %s from archive %s", name, archivePath);
       }
 
       /**
@@ -627,7 +627,7 @@ public abstract class VssAction
       @Override
       public String toString()
       {
-         return String.format("Share {0} from {1}", name, originalProject);
+         return String.format("Share %s from %s", name, originalProject);
       }
 
       /**
