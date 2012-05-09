@@ -18,6 +18,7 @@ public class MainImporter
       {
          //OpenLog(logTextBox.Text);
          Logger logger = new Logger();
+         logger.setDisableOutput(true);
          //logger.WriteLine("VSS2Git version {0}", Assembly.GetExecutingAssembly().GetName().Version);
 
          //WriteSettings();
@@ -66,11 +67,13 @@ public class MainImporter
          //            }
          revisionAnalyzer.addItem(project);
 
-         ChangesetBuilder changesetBuilder = new ChangesetBuilder(revisionAnalyzer);
+         ChangesetBuilder changesetBuilder = new ChangesetBuilder(revisionAnalyzer, logger);
          changesetBuilder.setAnyCommentThreshold(30000);//30sec
          changesetBuilder.setSameCommentThreshold(600000);//SameCommentThreshold = TimeSpan.FromSeconds((double)sameCommentUpDown.Value);
          changesetBuilder.buildChangesets();;
          String outGit = "/home/sj/java/tmp/git";
+         IoUtil.delete(outGit);
+         logger.setDisableOutput(false);
          if (outGit != null)
          {
             GitWrapper git = new GitWrapper(outGit, "git", "", false, "UTF-8");

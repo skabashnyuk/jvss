@@ -73,7 +73,8 @@ public class GitExporter
 
    private final GitCommandHandler git;
 
-   public GitExporter(Logger logger, RevisionAnalyzer revisionAnalyzer, ChangesetBuilder changesetBuilder, GitCommandHandler git)
+   public GitExporter(Logger logger, RevisionAnalyzer revisionAnalyzer, ChangesetBuilder changesetBuilder,
+      GitCommandHandler git)
    {
       this.git = git;
       this.logger = logger;
@@ -89,7 +90,7 @@ public class GitExporter
       //  var stopwatch = Stopwatch.StartNew();
 
       logger.WriteSectionSeparator();
-      //LogStatus(work, "Initializing Git repository");
+      logger.WriteLine("Initializing Git repository");
 
       File repoDir = new File(repoPath);
       // create repository directory if it does not exist
@@ -152,11 +153,11 @@ public class GitExporter
       tagsUsed.clear();
       for (Changeset changeset : changesets)
       {
-         //               var changesetDesc = string.Format(CultureInfo.InvariantCulture,
-         //                   "changeset {0} from {1}", changesetId, changeset.DateTime);
+         String changesetDesc = String.format("changeset %d from %tF", changesetId, changeset.getDateTime());
 
          // replay each revision in changeset
          //LogStatus(work, "Replaying " + changesetDesc);
+         logger.WriteLine("Replaying " + changesetDesc);
          labels.clear();
          //replayStopwatch.Start();
          boolean needCommit = false;
@@ -177,7 +178,7 @@ public class GitExporter
          // commit changes
          if (needCommit)
          {
-            //LogStatus(work, "Committing " + changesetDesc);
+            logger.WriteLine("Committing " + changesetDesc);
             if (commitChangeset(git, changeset))
             {
                ++commitCount;
@@ -201,7 +202,7 @@ public class GitExporter
                }
                else if (commitCount == 0)
                {
-                  logger.WriteLine("NOTE: Ignoring label '{0}' before initial commit", labelName);
+                  logger.WriteLine("NOTE: Ignoring label '%s' before initial commit", labelName);
                }
                else
                {
@@ -212,7 +213,7 @@ public class GitExporter
                   {
                      tagMessage += " for label '" + labelName + "'";
                   }
-                  //LogStatus(work, tagMessage);
+                  logger.WriteLine(tagMessage);
 
                   // annotated tags require (and are implied by) a tag message;
                   // tools like Mercurial's git converter only import annotated tags
@@ -247,8 +248,8 @@ public class GitExporter
       //           logger.WriteLine("Git export complete in {0:HH:mm:ss}", new DateTime(stopwatch.ElapsedTicks));
       //           logger.WriteLine("Replay time: {0:HH:mm:ss}", new DateTime(replayStopwatch.ElapsedTicks));
       //           logger.WriteLine("Git time: {0:HH:mm:ss}", new DateTime(git.ElapsedTime.Ticks));
-      //           logger.WriteLine("Git commits: {0}", commitCount);
-      //           logger.WriteLine("Git tags: {0}", tagCount);
+      //           logger.WriteLine("Git commits: %s", commitCount);
+      //           logger.WriteLine("Git tags: %s", tagCount);
       //});
    }
 
@@ -288,18 +289,22 @@ public class GitExporter
          if (projectPath == null)
          {
             projectDesc = revision.getItem().toString();
-            logger.WriteLine("NOTE: {0} is currently unmapped", project);
+            logger.WriteLine(String.format("NOTE: %s is currently unmapped", project));
          }
 
          VssItemName target = null;
          String targetPath = null;
-         VssNamedAction namedAction = (VssNamedAction)revision.getAction();
-         if (namedAction != null)
+
+         if (revision.getAction() instanceof VssNamedAction)
          {
-            target = namedAction.name();
-            if (projectPath != null)
+            VssNamedAction namedAction = (VssNamedAction)revision.getAction();
+            if (namedAction != null)
             {
-               targetPath = new File(projectPath, target.getLogicalName()).getAbsolutePath();
+               target = namedAction.name();
+               if (projectPath != null)
+               {
+                  targetPath = new File(projectPath, target.getLogicalName()).getAbsolutePath();
+               }
             }
          }
 
@@ -320,20 +325,20 @@ public class GitExporter
 
             case Add :
             case Share :
-               logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.getLogicalName());
+               logger.WriteLine(String.format("%s: %s %s", projectDesc, actionType, target.getLogicalName()));
                itemInfo = pathMapper.addItem(project, target);
                isAddAction = true;
                break;
 
             case Recover :
-               logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.getLogicalName());
+               logger.WriteLine(String.format("%s: %s %s", projectDesc, actionType, target.getLogicalName()));
                itemInfo = pathMapper.recoverItem(project, target);
                isAddAction = true;
                break;
 
             case Delete :
             case Destroy : {
-               logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.getLogicalName());
+               logger.WriteLine(String.format("%s: %s %s", projectDesc, actionType, target.getLogicalName()));
                itemInfo = pathMapper.deleteItem(project, target);
                if (targetPath != null && !itemInfo.isDestroyed())
                {
@@ -363,8 +368,8 @@ public class GitExporter
                         // that this is not the case before deleting the file
                         if (pathMapper.projectContainsLogicalName(project, target))
                         {
-                           logger.WriteLine("NOTE: {0} contains another file named {1}; not deleting file",
-                              projectDesc, target.getLogicalName());
+                           logger.WriteLine(String.format("NOTE: %s contains another file named %s; not deleting file",
+                              projectDesc, target.getLogicalName()));
                         }
                         else
                         {
@@ -379,8 +384,8 @@ public class GitExporter
 
             case Rename : {
                VssRenameAction renameAction = (VssRenameAction)revision.getAction();
-               logger.WriteLine("{0}: {1} {2} to {3}", projectDesc, actionType, renameAction.getOriginalName(),
-                  target.getLogicalName());
+               logger.WriteLine(String.format("%s: %s %s to %s", projectDesc, actionType,
+                  renameAction.getOriginalName(), target.getLogicalName()));
                itemInfo = pathMapper.renameItem(target);
                if (targetPath != null && !itemInfo.isDestroyed())
                {
@@ -403,7 +408,7 @@ public class GitExporter
                   }
                   else
                   {
-                     logger.WriteLine("NOTE: Skipping rename because {0} does not exist", sourcePath);
+                     logger.WriteLine("NOTE: Skipping rename because %s does not exist", sourcePath);
                   }
                }
             }
@@ -415,7 +420,7 @@ public class GitExporter
             // can succeed, so check that the source exists
             {
                VssMoveFromAction moveFromAction = (VssMoveFromAction)revision.getAction();
-               //                       logger.WriteLine("{0}: Move from {1} to {2}",
+               //                       logger.WriteLine("%s: Move from %s to %s",
                //                           projectDesc, moveFromAction.OriginalProject, targetPath ?? target.LogicalName);
                String sourcePath = pathMapper.getProjectPath(target.getPhysicalName());
                VssProjectInfo projectInfo =
@@ -449,7 +454,7 @@ public class GitExporter
             case MoveTo : {
                // handle actual moves in MoveFrom; this just does cleanup of destroyed projects
                VssMoveToAction moveToAction = (VssMoveToAction)revision.getAction();
-               //                       logger.WriteLine("{0}: Move to {1} from {2}",
+               //                       logger.WriteLine("%s: Move to %s from %s",
                //                           projectDesc, moveToAction.NewProject, targetPath ?? target.LogicalName);
                VssProjectInfo projectInfo = pathMapper.moveProjectTo(project, target, moveToAction.getNewProject());
                if (projectInfo.isDestroyed() && targetPath != null && IoUtil.isExists(targetPath))
@@ -465,12 +470,12 @@ public class GitExporter
                VssPinAction pinAction = (VssPinAction)revision.getAction();
                if (pinAction.isPinned())
                {
-                  logger.WriteLine("{0}: Pin {1}", projectDesc, target.getLogicalName());
+                  logger.WriteLine(String.format("%s: Pin %s", projectDesc, target.getLogicalName()));
                   itemInfo = pathMapper.pinItem(project, target);
                }
                else
                {
-                  logger.WriteLine("{0}: Unpin {1}", projectDesc, target.getLogicalName());
+                  logger.WriteLine(String.format("%s: Unpin %s", projectDesc, target.getLogicalName()));
                   itemInfo = pathMapper.unpinItem(project, target);
                   writeFile = !itemInfo.isDestroyed();
                }
@@ -479,7 +484,7 @@ public class GitExporter
 
             case Branch : {
                VssBranchAction branchAction = (VssBranchAction)revision.getAction();
-               logger.WriteLine("{0}: {1} {2}", projectDesc, actionType, target.getLogicalName());
+               logger.WriteLine(String.format("%s: %s %s", projectDesc, actionType, target.getLogicalName()));
                itemInfo = pathMapper.branchFile(project, target, branchAction.getSource());
                // branching within the project might happen after branching of the file
                writeFile = true;
@@ -490,15 +495,15 @@ public class GitExporter
             // currently ignored
             {
                VssArchiveAction archiveAction = (VssArchiveAction)revision.getAction();
-               logger.WriteLine("{0}: Archive {1} to {2} (ignored)", projectDesc, target.getLogicalName(),
-                  archiveAction.getArchivePath());
+               logger.WriteLine(String.format("%s: Archive %s to %s (ignored)", projectDesc, target.getLogicalName(),
+                  archiveAction.getArchivePath()));
             }
                break;
 
             case Restore : {
                VssRestoreAction restoreAction = (VssRestoreAction)revision.getAction();
-               logger.WriteLine("{0}: Restore {1} from archive {2}", projectDesc, target.getLogicalName(),
-                  restoreAction.getArchivePath());
+               logger.WriteLine(String.format("%s: Restore %s from archive %s", projectDesc, target.getLogicalName(),
+                  restoreAction.getArchivePath()));
                itemInfo = pathMapper.addItem(project, target);
                isAddAction = true;
             }
@@ -512,7 +517,7 @@ public class GitExporter
                if (revisionAnalyzer.isDestroyed(target.getPhysicalName())
                   && !database.ItemExists(target.getPhysicalName()))
                {
-                  logger.WriteLine("NOTE: Skipping destroyed file: {0}", targetPath);
+                  logger.WriteLine(String.format("NOTE: Skipping destroyed file: %s", targetPath));
                   itemInfo.setDestroyed(true);
                }
                else if (target.isProject())
@@ -532,7 +537,8 @@ public class GitExporter
                // create all contained subdirectories
                for (VssProjectInfo projectInfo : pathMapper.getAllProjects(target.getPhysicalName()))
                {
-                  logger.WriteLine("{0}: Creating subdirectory {1}", projectDesc, projectInfo.getLogicalName());
+                  logger.WriteLine(String.format("%s: Creating subdirectory %s", projectDesc,
+                     projectInfo.getLogicalName()));
                   //Directory.CreateDirectory(projectInfo.GetPath());
                   new File(projectInfo.getPath()).mkdirs();
                }
@@ -671,7 +677,7 @@ public class GitExporter
       Iterable<String> paths = pathMapper.getFilePaths(physicalName, underProject);
       for (String path : paths)
       {
-         logger.WriteLine("{0}: {1} revision {2}", path, actionType, version);
+         logger.WriteLine(String.format("%s: %s revision %s", path, actionType, version));
          if (writeRevisionTo(physicalName, version, path))
          {
             // add file explicitly, so it is visible to subsequent git operations
@@ -697,7 +703,7 @@ public class GitExporter
       {
          // log an error for missing data files or versions, but keep processing
          //var message = ExceptionFormatter.Format(e);
-         logger.WriteLine("ERROR: {0}", e.getLocalizedMessage());
+         logger.WriteLine(String.format("ERROR: %s", e.getLocalizedMessage()));
          logger.WriteLine(e);
          return false;
       }

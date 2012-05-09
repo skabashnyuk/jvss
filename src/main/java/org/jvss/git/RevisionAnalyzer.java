@@ -207,12 +207,13 @@ public class RevisionAnalyzer
       logger.WriteSectionSeparator();
       //LogStatus(work, "Building revision list");
 
-      logger.WriteLine("Root project: {0}", project.getPath());
-      logger.WriteLine("Excluded files: {0}", excludeFiles);
+      logger.WriteLine(String.format("Root project: %s", project.getPath()));
+      logger.WriteLine(String.format("Excluded files: %s", excludeFiles));
 
-      final int[] excludedProjects = new int[0];
-      final int[] excludedFiles = new int[0];
+      final int[] excludedProjects = new int[]{0};
+      final int[] excludedFiles = new int[]{0};
       //var stopwatch = Stopwatch.StartNew();
+      long start = System.currentTimeMillis();
       VssUtil.recurseItems(project, new VssProjectCallback()
       {
 
@@ -271,10 +272,10 @@ public class RevisionAnalyzer
       //stopwatch.Stop();
 
       logger.WriteSectionSeparator();
-      logger.WriteLine("Analysis complete in {0:HH:mm:ss}", new Date());
-      logger.WriteLine("Projects: {0} ({1} excluded)", projectCount, excludedProjects);
-      logger.WriteLine("Files: {0} ({1} excluded)", fileCount, excludedFiles);
-      logger.WriteLine("Revisions: {0}", revisionCount);
+      logger.WriteLine(String.format("Analysis complete in %d msec", System.currentTimeMillis() - start));
+      logger.WriteLine(String.format("Projects: %d ( %d excluded)", projectCount, excludedProjects[0]));
+      logger.WriteLine(String.format("Files: %d (%d excluded)", fileCount, excludedFiles[0]));
+      logger.WriteLine(String.format("Revisions: %d", revisionCount));
       //  });
    }
 
