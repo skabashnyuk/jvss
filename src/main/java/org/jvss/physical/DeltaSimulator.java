@@ -15,6 +15,8 @@
  */
 package org.jvss.physical;
 
+import org.jvss.physical.DeltaOperation.DeltaCommand;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -117,6 +119,37 @@ public class DeltaSimulator
       }
    }
 
+   public void read(int length, FromLogCallback fromLog, FromSuccessorCallback fromSuccessor)
+   {
+      while (length > 0 && !eof)
+      {
+         DeltaOperation operation = enumerator.next();
+         int operationRemaining = operation.getLength() - operationOffset;
+         int count = Math.min(length, operationRemaining);
+         int bytesRead;
+         if (operation.getCommand() == DeltaCommand.WriteLog)
+         {
+            bytesRead = fromLog.fromLog(operation.getData(), operation.getOffset() + operationOffset, count);
+         }
+         else
+         {
+            bytesRead = fromSuccessor.fromSuccessor(operation.getOffset() + operationOffset, count);
+         }
+         if (bytesRead == 0)
+         {
+            break;
+         }
+         operationOffset += bytesRead;
+         fileOffset += bytesRead;
+         if (length >= operationRemaining)
+         {
+            eof = !enumerator.hasNext();
+            operationOffset = 0;
+         }
+         length -= bytesRead;
+      }
+   }
+
    public int read(byte[] buffer, int offset, int length)
    {
       //      int bytesRead = 0;
@@ -155,7 +188,7 @@ public class DeltaSimulator
       //            operationOffset = 0;
       //         }
       //         length -= bytesRead;
-      //      }
+      //      }   
       return 0;
    }
 

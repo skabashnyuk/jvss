@@ -15,7 +15,8 @@
  */
 package org.jvss.physical;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.jvss.physical.DeltaSimulator.FromLogCallback;
+import org.jvss.physical.DeltaSimulator.FromSuccessorCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ public class DeltaUtil
 {
    public static List<DeltaOperation> merge(List<DeltaOperation> lastRevision, List<DeltaOperation> priorRevision)
    {
-      List<DeltaOperation> result = new LinkedList<DeltaOperation>();
+      final LinkedList<DeltaOperation> result = new LinkedList<DeltaOperation>();
       DeltaSimulator merger = new DeltaSimulator(lastRevision);
       for (DeltaOperation operation : priorRevision)
       {
@@ -41,19 +42,25 @@ public class DeltaUtil
                break;
             case WriteSuccessor :
                merger.seek(operation.getOffset());
-               throw new NotImplementedException();
-               //                      merger.read(operation.getLength(),
-               //                          delegate(byte[] data, int offset, int count)
-               //                          {
-               //                              result.AddLast(DeltaOperation.WriteLog(data, offset, count));
-               //                              return count;
-               //                          },
-               //                          delegate(int offset, int count)
-               //                          {
-               //                              result.AddLast(DeltaOperation.WriteSuccessor(offset, count));
-               //                              return count;
-               //                          });
-               // break;
+               merger.read(operation.getLength(), new FromLogCallback()
+               {
+
+                  @Override
+                  public int fromLog(byte[] data, int offset, int count)
+                  {
+                     result.addLast(DeltaOperation.writeLog(data, offset, count));
+                     return count;
+                  }
+               }, new FromSuccessorCallback()
+               {
+
+                  @Override
+                  public int fromSuccessor(int offset, int count)
+                  {
+                     result.addLast(DeltaOperation.writeSuccessor(offset, count));
+                     return count;
+                  }
+               });
          }
       }
       return result;
