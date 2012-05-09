@@ -170,7 +170,7 @@ public class VssDatabase
    public boolean ItemExists(String physicalName)
    {
       String physicalPath = GetDataPath(physicalName);
-      return new File(physicalPath).exists();
+      return new File(physicalPath.toLowerCase()).exists();
    }
 
    public VssDatabase(String path, String encoding) throws IOException
