@@ -88,10 +88,20 @@ public class IoUtil
 
       try
       {
+         File folder = new File(path).getParentFile();
+         if (!folder.exists())
+         {
+            folder.mkdirs();
+         }
          OutputStream out = new FileOutputStream(new File(path));
          writeStream(inputStream, out);
       }
       catch (FileNotFoundException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      catch (IOException e)
       {
          // TODO Auto-generated catch block
          e.printStackTrace();
