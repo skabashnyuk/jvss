@@ -288,9 +288,10 @@ public class VssPathMapper
          {
             for (VssItemInfo item : project.getItems())
             {
-               VssProjectInfo subproject = (VssProjectInfo)item;
-               if (subproject != null)
+
+               if (item instanceof VssProjectInfo)
                {
+                  VssProjectInfo subproject = (VssProjectInfo)item;
                   subprojects.addLast(subproject);
                }
                else
@@ -687,13 +688,20 @@ public class VssPathMapper
    {
       if (!projectSpec.startsWith("$/"))
       {
-         throw new IllegalArgumentException("Project spec must start with $/");
+         System.out.println("Project spec must start with $/");
+         //throw new IllegalArgumentException("Project spec must start with $/");
       }
 
       for (VssProjectInfo rootInfo : rootInfos.values())
       {
+
          if (projectSpec.startsWith(rootInfo.getOriginalVssPath()))
          {
+            if (projectSpec.equals(rootInfo.getOriginalVssPath()))
+            {
+               return rootInfo;
+            }
+
             int rootLength = rootInfo.getOriginalVssPath().length();
             if (!rootInfo.getOriginalVssPath().endsWith("/"))
             {
