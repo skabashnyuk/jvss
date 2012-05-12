@@ -393,18 +393,26 @@ public class GitExporter
                   if (target.isProject() ? IoUtil.isExists(sourcePath) : IoUtil.isExists(sourcePath))
                   {
                      // renaming a file or a project that contains files?
-                     VssProjectInfo projectInfo = (VssProjectInfo)itemInfo;
-                     if (projectInfo == null || projectInfo.containsFiles())
+                     if (itemInfo instanceof VssProjectInfo)
                      {
-                        //TODO gi
-                        caseSensitiveRename(sourcePath, targetPath, new GitMover(git));
-                        needCommit = true;
+                        VssProjectInfo projectInfo = (VssProjectInfo)itemInfo;
+                        if (projectInfo.containsFiles())
+                        {
+                           //TODO gi
+                           caseSensitiveRename(sourcePath, targetPath, new GitMover(git));
+                           needCommit = true;
+                        }
+                        else
+                        {
+                           // git doesn't care about directories with no files
+                           caseSensitiveRename(sourcePath, targetPath, new FsMover());
+                        }
                      }
                      else
                      {
-                        // git doesn't care about directories with no files
                         caseSensitiveRename(sourcePath, targetPath, new FsMover());
                      }
+
                   }
                   else
                   {
@@ -791,36 +799,36 @@ public class GitExporter
 
    private void caseSensitiveRename(String sourcePath, String destPath, RenameDelegate renamer)
    {
-      if (sourcePath.equalsIgnoreCase(destPath))
-      {
-         // workaround for case-only renames on case-insensitive file systems:
-         //TODO implement me
-         new Exception().printStackTrace();
-         //         var sourceDir = Path.GetDirectoryName(sourcePath);
-         //         var sourceFile = Path.GetFileName(sourcePath);
-         //         var destDir = Path.GetDirectoryName(destPath);
-         //         var destFile = Path.GetFileName(destPath);
-         //
-         //         if (sourceDir != destDir)
-         //         {
-         //            // recursively rename containing directories that differ : case
-         //            CaseSensitiveRename(sourceDir, destDir, renamer);
-         //
-         //            // fix up source path based on renamed directory
-         //            sourcePath = Path.Combine(destDir, sourceFile);
-         //         }
-         //
-         //         if (sourceFile != destFile)
-         //         {
-         //            // use temporary filename to rename files that differ in case
-         //            var tempPath = sourcePath + ".mvtmp";
-         //            CaseSensitiveRename(sourcePath, tempPath, renamer);
-         //            CaseSensitiveRename(tempPath, destPath, renamer);
-         //         }
-      }
-      else
-      {
-         renamer.rename(sourcePath, destPath);
-      }
+      //      if (sourcePath.equalsIgnoreCase(destPath))
+      //      {
+      //         // workaround for case-only renames on case-insensitive file systems:
+      //         //TODO implement me
+      //         new Exception().printStackTrace();
+      //         //         var sourceDir = Path.GetDirectoryName(sourcePath);
+      //         //         var sourceFile = Path.GetFileName(sourcePath);
+      //         //         var destDir = Path.GetDirectoryName(destPath);
+      //         //         var destFile = Path.GetFileName(destPath);
+      //         //
+      //         //         if (sourceDir != destDir)
+      //         //         {
+      //         //            // recursively rename containing directories that differ : case
+      //         //            CaseSensitiveRename(sourceDir, destDir, renamer);
+      //         //
+      //         //            // fix up source path based on renamed directory
+      //         //            sourcePath = Path.Combine(destDir, sourceFile);
+      //         //         }
+      //         //
+      //         //         if (sourceFile != destFile)
+      //         //         {
+      //         //            // use temporary filename to rename files that differ in case
+      //         //            var tempPath = sourcePath + ".mvtmp";
+      //         //            CaseSensitiveRename(sourcePath, tempPath, renamer);
+      //         //            CaseSensitiveRename(tempPath, destPath, renamer);
+      //         //         }
+      //      }
+      //      else
+      //      {
+      renamer.rename(sourcePath, destPath);
+      //}
    }
 }
