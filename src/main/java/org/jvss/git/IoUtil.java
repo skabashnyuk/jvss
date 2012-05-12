@@ -53,13 +53,11 @@ public class IoUtil
       delete(new File(path));
    }
 
-   public static void writeStream(InputStream inputStream, String path)
+   public static void writeStream(InputStream inputStream, OutputStream out)
    {
-
       // write the inputStream to a FileOutputStream
       try
       {
-         OutputStream out = new FileOutputStream(new File(path));
 
          int read = 0;
          byte[] bytes = new byte[1024];
@@ -79,6 +77,21 @@ public class IoUtil
          e.printStackTrace();
       }
       catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+
+   public static void writeStream(InputStream inputStream, String path)
+   {
+
+      try
+      {
+         OutputStream out = new FileOutputStream(new File(path));
+         writeStream(inputStream, out);
+      }
+      catch (FileNotFoundException e)
       {
          // TODO Auto-generated catch block
          e.printStackTrace();

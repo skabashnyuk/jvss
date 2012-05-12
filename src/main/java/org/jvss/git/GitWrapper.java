@@ -18,10 +18,14 @@
  */
 package org.jvss.git;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,6 +37,7 @@ import java.util.Date;
  */
 public class GitWrapper implements GitCommandHandler
 {
+
    private final File repoPath;
 
    private final String gitExecutable;
@@ -44,6 +49,8 @@ public class GitWrapper implements GitCommandHandler
    private final String commitEncoding;
 
    private final DateFormat gitDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+
+   private File tempFile;
 
    /**
     * @param gitExecutable
@@ -159,7 +166,67 @@ public class GitWrapper implements GitCommandHandler
 
       // ignore empty commits, since they are non-trivial to detect
       // (e.g. when renaming a directory)
-      return gitExec("commit -m " + Quote(comment), "nothing to commit", env);
+      try
+      {
+         return gitExec("commit " + addComment(comment), "nothing to commit", env);
+      }
+      finally
+      {
+         if (tempFile != null)
+         {
+            tempFile.delete();
+         }
+      }
+   }
+
+   private String addComment(String comment)
+   {
+      try
+      {
+         tempFile = null;
+         if (comment != null && comment.length() > 0)
+         {
+            // need to use a temporary file to specify the comment when not
+            // using the system default code page or it contains newlines
+            //if (comment.indexOf('\n') >= 0)
+            if (true)
+            {
+               //logger.WriteLine("Generating temp file for comment: {0}", comment);
+               tempFile = File.createTempFile("git-comment", "tmp");
+               tempFile.deleteOnExit();
+
+               OutputStream out = new FileOutputStream(tempFile);
+
+               try
+               {
+                  IoUtil.writeStream(new ByteArrayInputStream(comment.getBytes()), out);
+               }
+               finally
+               {
+                  out.close();
+               }
+               //tempFile.Write(comment, commitEncoding);
+
+               // temporary path might contain spaces (e.g. "Documents and Settings")
+               return " -F " + Quote(tempFile.getAbsolutePath());
+            }
+            else
+            {
+               return " -m " + Quote(comment);
+            }
+         }
+      }
+      catch (FileNotFoundException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      return "";
    }
 
    /**
