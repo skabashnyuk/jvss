@@ -105,7 +105,7 @@ public class DeltaSimulator
    {
       //System.err.println("Before seek>>>ni=" + ((ListIterator<DeltaOperation>)enumerator).nextIndex());
       //System.err.println("Before seek>>>pi=" + ((ListIterator<DeltaOperation>)enumerator).previousIndex());
-      System.out.println(String.format("Before seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
+      //System.out.println(String.format("Before seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
       if (offset != fileOffset)
       {
          if (offset < fileOffset)
@@ -129,7 +129,7 @@ public class DeltaSimulator
             }
          }
       }
-      System.out.println(String.format("After seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
+      //System.out.println(String.format("After seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
       //System.err.println("Before seek>>>ni=" + ((ListIterator<DeltaOperation>)enumerator).nextIndex());
       //System.err.println("Before seek>>>pi=" + ((ListIterator<DeltaOperation>)enumerator).previousIndex());
 
