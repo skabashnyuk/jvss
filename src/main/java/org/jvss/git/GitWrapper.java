@@ -134,7 +134,14 @@ public class GitWrapper implements GitCommandHandler
    @Override
    public void remove(String path, boolean recursive)
    {
-      gitExec("rm " + (recursive ? "-r " : "") + "-- " + Quote(path));
+      try
+      {
+         gitExec("rm " + (recursive ? "-r " : "") + "-- " + Quote(path));
+      }
+      catch (ProcessExitException e)
+      {
+         gitExec("rm -f " + (recursive ? "-r " : "") + "-- " + Quote(path));
+      }
 
    }
 
@@ -330,6 +337,7 @@ public class GitWrapper implements GitCommandHandler
 
       try
       {
+         System.err.println(gitExecutable + " " + args);
          Process p = Runtime.getRuntime().exec(gitExecutable + " " + args, envp, repoPath);
 
          String stdout = readString(p.getInputStream());
