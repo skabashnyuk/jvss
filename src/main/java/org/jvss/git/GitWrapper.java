@@ -152,7 +152,17 @@ public class GitWrapper implements GitCommandHandler
    @Override
    public void move(String sourcePath, String destPath)
    {
-      gitExec("mv -- " + Quote(sourcePath) + " " + Quote(destPath));
+      try
+      {
+         gitExec("mv " + Quote(sourcePath) + " " + Quote(destPath));
+      }
+      catch (ProcessExitException e)
+      {
+
+         //System.out.println(IoUtil.move(sourcePath, destPath));
+         gitExec("add -A");
+         //gitExec("mv -f " + Quote(sourcePath) + " " + Quote(destPath));
+      }
    }
 
    /**
@@ -337,7 +347,7 @@ public class GitWrapper implements GitCommandHandler
 
       try
       {
-         System.err.println(gitExecutable + " " + args);
+         //System.err.println(gitExecutable + " " + args);
          Process p = Runtime.getRuntime().exec(gitExecutable + " " + args, envp, repoPath);
 
          String stdout = readString(p.getInputStream());

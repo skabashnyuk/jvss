@@ -33,13 +33,14 @@ public class IoUtil
    public static boolean move(String source, String destination)
    {
       // File (or directory) to be moved
-      File file = new File(source);
+      File sourceFile = new File(source);
 
       // Destination directory
-      File dir = new File(destination);
+      File destinationFile = new File(destination);
 
       // Move file to new directory
-      return file.renameTo(new File(dir, file.getName()));
+      //return file.renameTo(new File(dir, file.getName()));
+      return sourceFile.renameTo(destinationFile);
 
    }
 
