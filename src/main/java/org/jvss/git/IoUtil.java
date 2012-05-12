@@ -18,6 +18,7 @@
  */
 package org.jvss.git;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,9 +50,9 @@ public class IoUtil
       return new File(path).exists();
    }
 
-   public static void delete(String path)
+   public static boolean delete(String path)
    {
-      delete(new File(path));
+      return delete(new File(path));
    }
 
    public static void writeStream(InputStream inputStream, OutputStream out)
@@ -61,7 +62,7 @@ public class IoUtil
       {
 
          int read = 0;
-         byte[] bytes = new byte[1024];
+         byte[] bytes = new byte[inputStream.available()];
 
          while ((read = inputStream.read(bytes)) > 0)
          {
@@ -82,6 +83,31 @@ public class IoUtil
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
+   }
+
+   public static byte[] readFile(InputStream is)
+   {
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();;
+      try
+      {
+
+         int nRead;
+         byte[] data = new byte[is.available()];
+
+         while ((nRead = is.read(data, 0, data.length)) != -1)
+         {
+            buffer.write(data, 0, nRead);
+         }
+
+         buffer.flush();
+      }
+      catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
+      return buffer.toByteArray();
    }
 
    public static void writeStream(InputStream inputStream, String path)
@@ -109,7 +135,7 @@ public class IoUtil
       }
    }
 
-   public static void delete(File f)
+   public static boolean delete(File f)
    {
       if (f.exists())
       {
@@ -120,10 +146,8 @@ public class IoUtil
                delete(c);
             }
          }
-         if (!f.delete())
-         {
-            throw new RuntimeException("Failed to delete file: " + f);
-         }
+         return f.delete();
       }
+      return false;
    }
 }

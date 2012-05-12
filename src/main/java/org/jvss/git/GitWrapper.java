@@ -140,7 +140,19 @@ public class GitWrapper implements GitCommandHandler
       }
       catch (ProcessExitException e)
       {
-         gitExec("rm -f " + (recursive ? "-r " : "") + "-- " + Quote(path));
+         try
+         {
+            gitExec("rm -f " + (recursive ? "-r " : "") + "-- " + Quote(path));
+         }
+         catch (ProcessExitException e1)
+         {
+
+            if (IoUtil.delete(path))
+            {
+               addAll();
+            }
+
+         }
       }
 
    }
@@ -159,8 +171,10 @@ public class GitWrapper implements GitCommandHandler
       catch (ProcessExitException e)
       {
 
-         //System.out.println(IoUtil.move(sourcePath, destPath));
-         gitExec("add -A");
+         if (IoUtil.move(sourcePath, destPath))
+         {
+            addAll();
+         }
          //gitExec("mv -f " + Quote(sourcePath) + " " + Quote(destPath));
       }
    }
@@ -350,10 +364,9 @@ public class GitWrapper implements GitCommandHandler
          //System.err.println(gitExecutable + " " + args);
          Process p = Runtime.getRuntime().exec(gitExecutable + " " + args, envp, repoPath);
 
+         int exitCode = p.waitFor();
          String stdout = readString(p.getInputStream());
          String stderr = readString(p.getErrorStream());
-
-         int exitCode = p.waitFor();
          if (exitCode != 0)
          {
             if (isNullOrEmpty(unless) || (isNullOrEmpty(stdout) || !stdout.contains(unless))
@@ -376,7 +389,8 @@ public class GitWrapper implements GitCommandHandler
 
    private static void failExitCode(String exec, String args, String stdout, String stderr, int exitCode)
    {
-      throw new ProcessExitException(String.format("git returned exit code %d", exitCode), exec, args, stdout, stderr);
+      throw new ProcessExitException(String.format("git returned exit code %d %s", exitCode, stderr), exec, args,
+         stdout, stderr);
    }
 
    private static String readString(InputStream is) throws IOException

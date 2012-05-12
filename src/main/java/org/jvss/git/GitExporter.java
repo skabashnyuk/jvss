@@ -799,6 +799,10 @@ public class GitExporter
 
    private void caseSensitiveRename(String sourcePath, String destPath, RenameDelegate renamer)
    {
+      if (sourcePath.equals(destPath))
+      {
+         return;
+      }
       //      if (sourcePath.equalsIgnoreCase(destPath))
       //      {
       //         // workaround for case-only renames on case-insensitive file systems:
