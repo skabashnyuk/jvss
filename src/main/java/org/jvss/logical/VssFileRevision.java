@@ -21,10 +21,12 @@ import org.jvss.physical.DeltaRecord;
 import org.jvss.physical.DeltaStream;
 import org.jvss.physical.DeltaUtil;
 import org.jvss.physical.ItemFile;
+import org.jvss.physical.RecordNotFoundException;
 import org.jvss.physical.RevisionRecord;
 import org.jvss.physical.RevisionRecord.BranchRevisionRecord;
 import org.jvss.physical.RevisionRecord.EditRevisionRecord;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +44,14 @@ public class VssFileRevision extends VssRevision
 
    public InputStream getContents() throws IOException
    {
+
+      File vssFile = new File(item.getDataPath().toLowerCase());
+
+      if (!vssFile.exists())
+      {
+         throw new RecordNotFoundException("File " + vssFile.getAbsolutePath() + " not found");
+      }
+
       InputStream dataFile = new FileInputStream(item.getDataPath().toLowerCase());
 
       ItemFile itemFile = item.getItemFile();

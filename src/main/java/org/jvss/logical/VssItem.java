@@ -68,7 +68,7 @@ public abstract class VssItem
 
    public String getDataPath()
    {
-      return physicalPath + getItemFile().getHeader().getDataExt();
+      return physicalPath + getItemFile().getHeader().getDataExt().toLowerCase();
    }
 
    public int getRevisionCount()

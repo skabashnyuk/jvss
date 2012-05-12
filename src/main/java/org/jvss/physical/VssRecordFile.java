@@ -38,7 +38,13 @@ public class VssRecordFile
 
    public VssRecordFile(String filename, String encoding)
    {
-      this.filename = filename;
+      this.filename = filename.toLowerCase();
+      File vssFile = new File(this.filename);
+
+      if (!vssFile.exists())
+      {
+         throw new RecordNotFoundException("File " + this.filename + " not found");
+      }
       reader = new BufferReader(encoding, readFile(filename));
    }
 
