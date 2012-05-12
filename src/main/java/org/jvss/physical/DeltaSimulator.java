@@ -145,7 +145,7 @@ public class DeltaSimulator
          int bytesRead;
          if (operation.getCommand() == DeltaCommand.WriteLog)
          {
-            bytesRead = fromLog.fromLog(operation.getData(), operation.getData().length + operationOffset, count);
+            bytesRead = fromLog.fromLog(operation.getData(), operationOffset, count);
          }
          else
          {
