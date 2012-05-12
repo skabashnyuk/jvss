@@ -369,10 +369,17 @@ public class GitWrapper implements GitCommandHandler
          String stderr = readString(p.getErrorStream());
          if (exitCode != 0)
          {
-            if (isNullOrEmpty(unless) || (isNullOrEmpty(stdout) || !stdout.contains(unless))
-               && (isNullOrEmpty(stderr) || !stderr.contains(unless)))
+            if (exitCode == 143)
             {
-               failExitCode(gitExecutable, args, stdout, stderr, exitCode);
+               gitExec(args, "nothing to commit", envp);
+            }
+            else
+            {
+               if (isNullOrEmpty(unless) || (isNullOrEmpty(stdout) || !stdout.contains(unless))
+                  && (isNullOrEmpty(stderr) || !stderr.contains(unless)))
+               {
+                  failExitCode(gitExecutable, args, stdout, stderr, exitCode);
+               }
             }
          }
          return exitCode == 0;
