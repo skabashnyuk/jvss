@@ -17,7 +17,6 @@ package org.jvss.physical;
 
 import org.jvss.physical.DeltaOperation.DeltaCommand;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,13 +36,23 @@ public class DeltaSimulator
 
    private final List<DeltaOperation> operations;
 
-   private Iterator<DeltaOperation> enumerator;
+   private IEnumerator<DeltaOperation> enumerator;
 
    private int operationOffset;
 
    private int fileOffset;
 
    private boolean eof;
+
+   private DeltaOperation current;
+
+   public DeltaOperation getCurrent()
+   {
+      if (enumerator != null)
+      {
+      }
+      return null;
+   }
 
    /**
     * @return the operations
@@ -94,6 +103,9 @@ public class DeltaSimulator
 
    public void seek(int offset)
    {
+      //System.err.println("Before seek>>>ni=" + ((ListIterator<DeltaOperation>)enumerator).nextIndex());
+      //System.err.println("Before seek>>>pi=" + ((ListIterator<DeltaOperation>)enumerator).previousIndex());
+      System.out.println(String.format("Before seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
       if (offset != fileOffset)
       {
          if (offset < fileOffset)
@@ -103,7 +115,7 @@ public class DeltaSimulator
          while (fileOffset < offset && !eof)
          {
             int seekRemaining = offset - fileOffset;
-            int operationRemaining = enumerator.next().getLength() - operationOffset;
+            int operationRemaining = enumerator.current().getLength() - operationOffset;
             if (seekRemaining < operationRemaining)
             {
                operationOffset += seekRemaining;
@@ -112,24 +124,28 @@ public class DeltaSimulator
             else
             {
                fileOffset += operationRemaining;
-               eof = !enumerator.hasNext();
+               eof = !enumerator.moveNext();
                operationOffset = 0;
             }
          }
       }
+      System.out.println(String.format("After seek>>>fo=%d opf=%d off=%d", fileOffset, operationOffset, offset));
+      //System.err.println("Before seek>>>ni=" + ((ListIterator<DeltaOperation>)enumerator).nextIndex());
+      //System.err.println("Before seek>>>pi=" + ((ListIterator<DeltaOperation>)enumerator).previousIndex());
+
    }
 
    public void read(int length, FromLogCallback fromLog, FromSuccessorCallback fromSuccessor)
    {
       while (length > 0 && !eof)
       {
-         DeltaOperation operation = enumerator.next();
+         DeltaOperation operation = enumerator.current();
          int operationRemaining = operation.getLength() - operationOffset;
          int count = Math.min(length, operationRemaining);
          int bytesRead;
          if (operation.getCommand() == DeltaCommand.WriteLog)
          {
-            bytesRead = fromLog.fromLog(operation.getData(), operation.getOffset() + operationOffset, count);
+            bytesRead = fromLog.fromLog(operation.getData(), operation.getData().length + operationOffset, count);
          }
          else
          {
@@ -143,53 +159,11 @@ public class DeltaSimulator
          fileOffset += bytesRead;
          if (length >= operationRemaining)
          {
-            eof = !enumerator.hasNext();
+            eof = !enumerator.moveNext();
             operationOffset = 0;
          }
          length -= bytesRead;
       }
-   }
-
-   public int read(byte[] buffer, int offset, int length)
-   {
-      //      int bytesRead = 0;
-      //      while (length > 0 && !eof)
-      //      {
-      //         DeltaOperation operation = enumerator.next();
-      //         int operationRemaining = operation.getLength() - operationOffset;
-      //         int count = Math.min(length, operationRemaining);
-      //         if (operation.getCommand() == DeltaCommand.WriteLog)
-      //         {
-      //            //bytesRead = fromLog.fromLog(operation.getData(), operationOffset, count);
-      //            System.arraycopy(operation.getData(), operationOffset, buffer, offset, count);
-      //            offset += count;
-      //            count -= count;
-      //            bytesRead += count;
-      //         }
-      //         else
-      //         {
-      //            bytesRead = fromSuccessor.fromSuccessor(operation.getOffset() + operationOffset, count);
-      //
-      //            baseStream.skip(opOffset); //TODO check this  baseStream.Seek(opOffset, SeekOrigin.Begin);
-      //            int opBytesRead = baseStream.read(buffer, offset, count);
-      //            offset += opBytesRead;
-      //            count -= opBytesRead;
-      //            bytesRead[0] += opBytesRead;
-      //         }
-      //         if (bytesRead == 0)
-      //         {
-      //            break;
-      //         }
-      //         operationOffset += bytesRead;
-      //         fileOffset += bytesRead;
-      //         if (length >= operationRemaining)
-      //         {
-      //            eof = !enumerator.hasNext();
-      //            operationOffset = 0;
-      //         }
-      //         length -= bytesRead;
-      //      }   
-      return 0;
    }
 
    private void Reset()
@@ -198,7 +172,7 @@ public class DeltaSimulator
       {
          enumerator = null;
       }
-      enumerator = operations.iterator();
+      enumerator = new IEnumerator<DeltaOperation>(operations.iterator());
       eof = !enumerator.hasNext();
       operationOffset = 0;
       fileOffset = 0;

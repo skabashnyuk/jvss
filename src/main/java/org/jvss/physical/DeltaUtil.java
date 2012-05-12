@@ -41,6 +41,9 @@ public class DeltaUtil
                result.add(operation);
                break;
             case WriteSuccessor :
+               System.out.println("DeltaUtil>>>" + lastRevision.size() + "==" + priorRevision.size());
+               System.out.println("seek>>>" + operation.getOffset());
+               System.out.println("length>>>" + operation.getLength());
                merger.seek(operation.getOffset());
                merger.read(operation.getLength(), new FromLogCallback()
                {
@@ -62,7 +65,9 @@ public class DeltaUtil
                   }
                });
          }
+
       }
+      System.out.println("DeltaUtil<<<" + result.size());
       return result;
    }
 
