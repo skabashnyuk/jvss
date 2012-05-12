@@ -17,6 +17,11 @@ package org.jvss.physical;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import org.jvss.git.IoUtil;
+import org.jvss.physical.DeltaSimulator.FromLogCallback;
+import org.jvss.physical.DeltaSimulator.FromSuccessorCallback;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -28,7 +33,7 @@ import java.util.List;
 public class DeltaStream extends InputStream
 {
 
-   private final InputStream baseStream;
+   private final ByteArrayInputStream baseStream;
 
    private final DeltaSimulator simulator;
 
@@ -36,7 +41,7 @@ public class DeltaStream extends InputStream
 
    public DeltaStream(InputStream stream, List<DeltaOperation> operations)
    {
-      baseStream = stream;
+      baseStream = new ByteArrayInputStream(IoUtil.readFile(stream));
       simulator = new DeltaSimulator(operations);
    }
 
@@ -70,38 +75,40 @@ public class DeltaStream extends InputStream
     * @see java.io.InputStream#read(byte[], int, int)
     */
    @Override
-   public int read(byte[] buffer, int offset, int count) throws IOException
+   public int read(final byte[] buffer, int offset, int count) throws IOException
    {
-      //final int[] bytesRead = new int[1];
+      final int[] localVar = new int[]{0, offset, count}; //bytesRead , offset, count
+      //final int[] bytesRead = new int[]{0};
 
-      //      simulator.read(count, new FromLogCallback()
-      //      {
-      //
-      //         @Override
-      //         public int fromLog(byte[] opData, int opOffset, int opCount)
-      //         {
-      //            System.arraycopy(opData, opOffset, buffer, offset, opCount);
-      //            offset += opCount;
-      //            count -= opCount;
-      //            bytesRead[0] += opCount;
-      //            return opCount;
-      //         }
-      //
-      //      }, new FromSuccessorCallback()
-      //      {
-      //
-      //         @Override
-      //         public int fromSuccessor(int opOffset, int opCount)
-      //         {
-      //            baseStream.skip(opOffset); //TODO check this  baseStream.Seek(opOffset, SeekOrigin.Begin);
-      //            int opBytesRead = baseStream.read(buffer, offset, opCount);
-      //            offset += opBytesRead;
-      //            count -= opBytesRead;
-      //            bytesRead[0] += opBytesRead;
-      //            return opBytesRead;
-      //         }
-      //      });
+      simulator.read(count, new FromLogCallback()
+      {
 
-      return 0;//simulator.read(buffer, offset, count);//bytesRead[0];
+         @Override
+         public int fromLog(byte[] opData, int opOffset, int opCount)
+         {
+            System.arraycopy(opData, opOffset, buffer, localVar[1], opCount);
+            localVar[1] += opCount;
+            localVar[2] -= opCount;
+            localVar[0] += opCount;
+            return opCount;
+         }
+
+      }, new FromSuccessorCallback()
+      {
+
+         @Override
+         public int fromSuccessor(int opOffset, int opCount)
+         {
+            baseStream.reset();
+            baseStream.skip(opOffset); //TODO check this  baseStream.Seek(opOffset, SeekOrigin.Begin);
+            int opBytesRead = baseStream.read(buffer, localVar[1], opCount);
+            localVar[1] += opBytesRead;
+            localVar[2] -= opBytesRead;
+            localVar[0] += opBytesRead;
+            return opBytesRead;
+         }
+      });
+
+      return localVar[0];//simulator.read(buffer, offset, count);//bytesRead[0];
    }
 }
