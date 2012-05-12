@@ -322,10 +322,14 @@ public class VssPathMapper
          {
             for (VssItemInfo item : project.items)
             {
-               VssProjectInfo subproject = (VssProjectInfo)item;
-               if (subproject != null)
+
+               if (item instanceof VssProjectInfo)
                {
-                  result.add(subproject);
+                  VssProjectInfo subproject = (VssProjectInfo)item;
+                  if (subproject != null)
+                  {
+                     result.add(subproject);
+                  }
                }
             }
             //if (subprojects.getFirst() != null)
@@ -715,12 +719,15 @@ public class VssPathMapper
                boolean found = false;
                for (VssItemInfo item : projectInfo.getItems())
                {
-                  VssProjectInfo subprojectInfo = (VssProjectInfo)item;
-                  if (subprojectInfo != null && subprojectInfo.getLogicalName().equals(subprojectName))
+                  if (item instanceof VssProjectInfo)
                   {
-                     projectInfo = subprojectInfo;
-                     found = true;
-                     break;
+                     VssProjectInfo subprojectInfo = (VssProjectInfo)item;
+                     if (subprojectInfo != null && subprojectInfo.getLogicalName().equals(subprojectName))
+                     {
+                        projectInfo = subprojectInfo;
+                        found = true;
+                        break;
+                     }
                   }
                }
                if (!found)
