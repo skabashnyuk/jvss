@@ -76,7 +76,7 @@ public class MainImporter
          logger.setDisableOutput(false);
          if (outGit != null)
          {
-            GitWrapper git = new GitWrapper(outGit, "git", "", false, "UTF-8");
+            GitCommandHandler git = new JgitCommandHandler(outGit);//new GitWrapper(outGit, "git", "", false, "UTF-8");
             GitExporter gitExporter = new GitExporter(logger, revisionAnalyzer, changesetBuilder, git);
             //                if (!string.IsNullOrEmpty(domainTextBox.Text))
             //                {
