@@ -2,6 +2,7 @@ package org.jvss.git.fastimport;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Create or update a branch with a new commit, recording one logical change to the project.
@@ -38,22 +39,20 @@ public class CommitCommand implements Writable, Constants {
     private final Committer committer;
 
     private final Message commitMessage;
-    /**
-     * The from command is used to specify the commit to initialize this branch from. This revision will be the first
-     * ancestor of the new commit.
-     */
-    private final String from;
 
-    public CommitCommand(String ref, Author author, Committer committer, Message commitMessage, String from) {
+    private final List<FileCommand> fileCommands;
+
+
+    public CommitCommand(String ref, Author author, Committer committer, Message commitMessage, List<FileCommand> fileCommands) {
         this.ref = ref;
         this.author = author;
         this.committer = committer;
         this.commitMessage = commitMessage;
-        this.from = from;
+        this.fileCommands = fileCommands;
     }
 
-    public CommitCommand(String ref, Committer committer, Message commitMessage, String from) {
-        this(ref, null, committer, commitMessage, from);
+    public CommitCommand(String ref, Committer committer, Message commitMessage, List<FileCommand> fileCommands) {
+        this(ref, null, committer, commitMessage, fileCommands);
     }
 
     @Override
@@ -66,6 +65,9 @@ public class CommitCommand implements Writable, Constants {
 
         committer.writeTo(out, opts);
         commitMessage.writeTo(out, opts);
+        for (FileCommand command : fileCommands) {
+            command.writeTo(out, opts);
+        }
 
 
     }
