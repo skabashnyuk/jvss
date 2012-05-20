@@ -70,13 +70,13 @@ public class MainImporter
          ChangesetBuilder changesetBuilder = new ChangesetBuilder(revisionAnalyzer, logger);
          changesetBuilder.setAnyCommentThreshold(30000);//30sec
          changesetBuilder.setSameCommentThreshold(600000);//SameCommentThreshold = TimeSpan.FromSeconds((double)sameCommentUpDown.Value);
-         changesetBuilder.buildChangesets();;
+         changesetBuilder.buildChangesets();
          String outGit = "/home/sj/java/tmp/git";
          IoUtil.delete(outGit);
          logger.setDisableOutput(false);
          if (outGit != null)
          {
-            GitCommandHandler git = new JgitCommandHandler(outGit);//new GitWrapper(outGit, "git", "", false, "UTF-8");
+            GitCommandHandler git =new GitWrapper(outGit, "git", "", false, "UTF-8");
             GitExporter gitExporter = new GitExporter(logger, revisionAnalyzer, changesetBuilder, git);
             //                if (!string.IsNullOrEmpty(domainTextBox.Text))
             //                {
