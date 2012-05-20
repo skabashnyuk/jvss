@@ -8,7 +8,7 @@ import java.io.PrintStream;
  * The existing file or directory must exist.
  * If the destination exists it will be completely replaced by the content copied from the source.
  */
-public class FileCopyCommand implements  FileCommand{
+public class FileCopyCommand implements FileCommand {
 
     private final String sourceLocation;
 

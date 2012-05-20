@@ -8,7 +8,7 @@ import java.io.PrintStream;
  * This command resets the internal branch structure to have no files in it, allowing the frontend
  * to subsequently add all interesting files from scratch.
  */
-public class FileDeleteAllCommand implements FileCommand{
+public class FileDeleteAllCommand implements FileCommand {
 
     @Override
     public void writeTo(PrintStream out, Options opts) throws IOException {

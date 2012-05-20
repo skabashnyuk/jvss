@@ -6,12 +6,12 @@ import java.util.Date;
 /**
  *
  */
-public class PersonalChange implements  Writable, Constants{
-   private final String role;
+public class PersonalChange implements Writable, Constants {
+    private final String role;
 
-   private final Person person;
+    private final Person person;
 
-   private final Date when;
+    private final Date when;
 
     public PersonalChange(String role, Person person, Date when) {
         this.role = role;

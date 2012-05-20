@@ -65,7 +65,7 @@ public class CommitCommand implements Writable, Constants {
         }
 
         committer.writeTo(out, opts);
-        commitMessage.writeTo(out,opts);
+        commitMessage.writeTo(out, opts);
 
 
     }

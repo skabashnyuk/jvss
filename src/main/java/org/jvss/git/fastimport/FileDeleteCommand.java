@@ -9,7 +9,7 @@ import java.io.PrintStream;
  * the parent directory will be automatically removed too.
  * This cascades up the tree until the first non-empty directory or the root is reached.
  */
-public class FileDeleteCommand implements FileCommand{
+public class FileDeleteCommand implements FileCommand {
 
     private final String path;
 

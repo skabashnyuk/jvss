@@ -7,7 +7,7 @@ package org.jvss.git.fastimport;
  * Time: 19:19
  * To change this template use File | Settings | File Templates.
  */
-public class Message extends  Data{
+public class Message extends Data {
     public Message(String message) {
         super(message.getBytes());
     }

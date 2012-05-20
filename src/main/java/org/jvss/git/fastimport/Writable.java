@@ -6,7 +6,7 @@ import java.io.PrintStream;
 /**
  * Indicates what object can be written to stream.
  */
-public interface Writable{
+public interface Writable {
 
     /**
      * Write content to output stream.

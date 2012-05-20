@@ -13,6 +13,7 @@ public interface Command {
      */
     public static final char SP = ' ';
     public static final char LF = '\n';
+
     /**
      * Commands to update the current repository and control the current import process. More detailed discussion (with examples) of each command follows later.
      */

@@ -1,7 +1,5 @@
 package org.jvss.git.fastimport;
 
-import java.text.DateFormat;
-
 /**
  *
  */
@@ -18,7 +16,7 @@ public interface Constants {
      * LT and GT are the literal less-than (\x3c) and greater-than (\x3e) symbols.
      * These are required to delimit the email address from the other fields in the line.
      */
-    public static final char LT='<';
-    public static final char GT='>';
+    public static final char LT = '<';
+    public static final char GT = '>';
 
 }
